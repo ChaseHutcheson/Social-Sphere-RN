@@ -64,7 +64,7 @@ class Post(Base):
     latitude = Column(Float)  # Add this line for latitude
     longitude = Column(Float)  # Add this line for longitude
     created_at = Column(DateTime, nullable=False, default=datetime.now)
-    attendee_count = Column(Integer, default=0)
+    attendee_count = Column(Integer, default=1)
     deadline = Column(DateTime)
     attendees = relationship(
         "User", secondary=user_post_association, back_populates="attending"

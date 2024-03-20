@@ -1,18 +1,14 @@
-from fastapi import FastAPI, HTTPException, Depends, APIRouter, status
+from fastapi import HTTPException, Depends, APIRouter, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
 from app.schema import UserCreate, UserLogin
 from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
-from app.models import User, Post
-from app.schema import UserCreate, PostCreate
+from app.models import User
+from app.schema import UserCreate
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import desc
-from datetime import datetime, timedelta
 from app.settings import Settings
-from typing import List
 from app.helper_funcs import (
     create_access_token,
     create_refresh_token,
@@ -22,7 +18,7 @@ from app.helper_funcs import (
     get_user_by_id,
     hash_password,
     verify_password,
-    verify_token
+    verify_token,
 )
 import smtplib
 from email.mime.text import MIMEText
@@ -39,6 +35,7 @@ RESET_CODE_EXPIRE_MINUTES = 30
 GOOGLE_MAPS_API_KEY = Settings.GOOGLE_MAPS_API_KEY
 
 reset_codes = {}
+
 
 @user_router.post("/register")
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -83,19 +80,19 @@ def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(
         data={"sub": str(db_user.id), "username": db_user.username}
     )
-    refresh_token = get_users_refresh_token(db, db_user.id).token
+    refresh_token = get_users_refresh_token(db, db_user.id)
 
     if refresh_token:
         return {
             "access_token": access_token,
-            "refresh_token": refresh_token,
+            "refresh_token": refresh_token.token,
             "token_type": TOKEN_TYPE,
         }
     else:
         refresh_token = create_refresh_token(
             data={"sub": str(db_user.id), "username": db_user.username}
         )
-        create_refresh_token(db, user_id=db_user.id, token=refresh_token)
+        link_refresh_token_to_user(db, db_user.id, refresh_token)
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -104,11 +101,17 @@ def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
 
 
 @user_router.post("/logout")
-def logout_user(user_id: str, db: Session = Depends(get_db)):
+def logout_user(access_token: str, db: Session = Depends(get_db)):
     try:
-        refresh_token = get_users_refresh_token(db, user_id)
-        revoke_refresh_token_from_user(db, refresh_token)
-        return {"message": "Logout successful"}
+        token_valid = verify_token(access_token)
+        if token_valid:
+            payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload["sub"]
+            refresh_token = get_users_refresh_token(db, user_id).token
+            revoke_refresh_token_from_user(db, refresh_token)
+            return {"message": "Logout successful"}
+        else:
+            raise HTTPException(status_code=401, detail="Invalid token")
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
@@ -160,4 +163,3 @@ def get_current_user(db: Session = Depends(get_db), token=str):
             raise credentials_exception
     else:
         raise credentials_exception
-

@@ -1,11 +1,12 @@
 from jose import JWTError, jwt
 from app.database import get_db
-from app.models import User, RefreshToken, Post
+from app.models import User, RefreshToken, Post, user_post_association
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.types import Float
 from sqlalchemy import and_
 from app.settings import Settings
+from fastapi import Depends
 import bcrypt
 from typing import Optional, List, Union
 from datetime import datetime, timedelta
@@ -164,24 +165,6 @@ def get_coordinates_from_address(address: str):
         return None
 
 
-def get_coordinates_from_address(address: str):
-    """
-    Get coordinates (latitude, longitude) from an address using Google Maps Geocoding API.
-    """
-    params = {"address": address, "key": GOOGLE_MAPS_API_KEY}
-
-    response = requests.get(
-        "https://maps.googleapis.com/maps/api/geocode/json", params=params
-    )
-    data = response.json()
-
-    if data["status"] == "OK" and data.get("results"):
-        location = data["results"][0]["geometry"]["location"]
-        return {"lat": location["lat"], "lng": location["lng"]}
-    else:
-        return None
-
-
 def get_events_from_database(
     latitude: float, longitude: float, radius: int, db: Session
 ):
@@ -233,3 +216,12 @@ def get_events_from_database(
         formatted_events.append(formatted_event)
 
     return formatted_events
+
+
+def is_author(user_id, post_id, db):
+    user_post = (
+        db.query(user_post_association)
+        .filter_by(user_id=user_id, post_id=post_id)
+        .first()
+    )
+    return user_post is not None

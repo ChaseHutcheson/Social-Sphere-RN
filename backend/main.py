@@ -13,3 +13,8 @@ Base.metadata.create_all(bind=engine)
 app.include_router(user_router)
 app.include_router(event_router)
 app.include_router(auth_router)
+
+
+@app.get("/")
+def root():
+    return {"status": "Ok"}

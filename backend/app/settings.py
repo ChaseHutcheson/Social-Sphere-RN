@@ -15,4 +15,4 @@ class Settings:
     TOKEN_TYPE = "Bearer"
 
     # Google Maps API key for geocoding addresses
-    GOOGLE_MAPS_API_KEY = "AIzaSyC7RL6klzMMC956AppWDhHaFZtpviXpur4"
+    GOOGLE_MAPS_API_KEY = "AIzaSyDd0YxufG2QqTaN5JG00q_oT2lmbg-czWA"

@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models import User
 from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
-from app.models import User, Post
+from app.models import User, Post, user_post_association
 from app.schema import PostCreate
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -15,6 +15,7 @@ from app.helper_funcs import (
     verify_token,
     get_coordinates_from_address,
     get_events_from_database,
+    is_author,
 )
 
 auth_router = APIRouter(prefix="/auth")
@@ -31,8 +32,9 @@ reset_codes = {}
 
 event_router = APIRouter(prefix="/events")
 
+
 @event_router.post("/make-post")
-def make_post(post_data: PostCreate, db: Session = Depends(get_db), token=str):
+def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token=str):
     """
     Endpoint to create a post. Requires a valid token for authentication.
     """
@@ -41,9 +43,10 @@ def make_post(post_data: PostCreate, db: Session = Depends(get_db), token=str):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    print("Before conditional")
+    if verify_token(access_token):
+        print("Before decode")
+        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = data.get("sub")
 
         if user_id is None:
@@ -94,96 +97,6 @@ def make_post(post_data: PostCreate, db: Session = Depends(get_db), token=str):
             "attendees": new_post.attendee_count,
             "deadline": new_post.deadline,
         }
-
-    else:
-        raise credentials_exception
-
-
-@event_router.post("/attend-event/{post_id}")
-def attend_event(post_id: int, db: Session = Depends(get_db), token=str):
-    """
-    Endpoint to attend an event. Requires a valid token for authentication.
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = data.get("sub")
-
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        db_user = db.query(User).filter(User.id == user_id).first()
-        if db_user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        event_to_attend = db.query(Post).filter(Post.id == post_id).first()
-        if event_to_attend is None:
-            raise HTTPException(status_code=404, detail="Event not found")
-
-        try:
-            # Try to add the user to the attendees of the event
-            event_to_attend.attendees.append(db_user)
-
-            # Increment the attendee_count for the event
-            event_to_attend.attendee_count += 1
-
-            db.commit()
-
-            return {"message": "Successfully attended the event"}
-        except IntegrityError as e:
-            # Handle unique constraint violation
-            db.rollback()
-            return {"message": "User is already attending the event"}
-
-    else:
-        raise credentials_exception
-
-
-@event_router.post("/unattend-event/{post_id}")
-def unattend_event(post_id: int, db: Session = Depends(get_db), token=str):
-    """
-    Endpoint to unattend an event. Requires a valid token for authentication.
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = data.get("sub")
-
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        db_user = db.query(User).filter(User.id == user_id).first()
-        if db_user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        event_to_unattend = db.query(Post).filter(Post.id == post_id).first()
-        if event_to_unattend is None:
-            raise HTTPException(status_code=404, detail="Event not found")
-
-        try:
-            # Try to remove the user from the attendees of the event
-            event_to_unattend.attendees.remove(db_user)
-
-            # Decrement the attendee_count for the event
-            event_to_unattend.attendee_count -= 1
-
-            db.commit()
-
-            return {"message": "Successfully unattended the event"}
-        except ValueError:
-            # Handle if the user is not found in the attendees list
-            db.rollback()
-            return {"message": "User is not attending the event"}
 
     else:
         raise credentials_exception
@@ -300,3 +213,153 @@ def get_newest_events(db: Session = Depends(get_db), token=str):
             )
     else:
         raise credentials_exception
+
+
+@event_router.post("/edit-event")
+def edit_event(
+    post_data: PostCreate, post_id: str, token: str, db: Session = Depends(get_db)
+):
+    if verify_token(token):
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if is_author(user_id, post_id, db):
+            post = db.query(Post).filter(Post.id == post_id).first()
+            if post:
+                post.title = post_data.title
+                post.content = post_data.content
+                post.address = post_data.address
+                post.deadline = post_data.deadline
+                db.commit()
+                return {"message": "Post updated successfully"}
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Post not found",
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User is not post author.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't validate credentials.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@event_router.post("/attend-event/{post_id}")
+def attend_event(post_id: str, token: str, db: Session = Depends(get_db)):
+    """
+    Endpoint to attend an event. Requires a valid token for authentication.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if verify_token(token):
+        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = data.get("sub")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        db_user = db.query(User).filter(User.id == user_id).first()
+        if db_user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        event_to_attend = db.query(Post).filter(Post.id == post_id).first()
+        if event_to_attend is None:
+            raise HTTPException(status_code=404, detail="Event not found")
+
+        try:
+            # Try to add the user to the attendees of the event
+            event_to_attend.attendees.append(db_user)
+
+            # Increment the attendee_count for the event
+            event_to_attend.attendee_count += 1
+
+            db.commit()
+
+            return {"message": "Successfully attended the event"}
+        except IntegrityError as e:
+            # Handle unique constraint violation
+            db.rollback()
+            return {"message": "User is already attending the event"}
+
+    else:
+        raise credentials_exception
+
+
+@event_router.post("/unattend-event/{post_id}")
+def unattend_event(post_id: int, db: Session = Depends(get_db), token=str):
+    """
+    Endpoint to unattend an event. Requires a valid token for authentication.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if verify_token(token):
+        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = data.get("sub")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        db_user = db.query(User).filter(User.id == user_id).first()
+        if db_user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        event_to_unattend = db.query(Post).filter(Post.id == post_id).first()
+        if event_to_unattend is None:
+            raise HTTPException(status_code=404, detail="Event not found")
+
+        try:
+            # Try to remove the user from the attendees of the event
+            event_to_unattend.attendees.remove(db_user)
+
+            # Decrement the attendee_count for the event
+            event_to_unattend.attendee_count -= 1
+
+            db.commit()
+
+            return {"message": "Successfully unattended the event"}
+        except ValueError:
+            # Handle if the user is not found in the attendees list
+            db.rollback()
+            return {"message": "User is not attending the event"}
+
+    else:
+        raise credentials_exception
+
+
+@event_router.delete("/delete-event")
+def delete_event(post_id: str, token: str, db: Session = Depends(get_db)):
+    if verify_token(token):
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if is_author(user_id, post_id, db):
+            db.query(user_post_association).filter(
+                user_post_association.c.post_id == post_id
+            ).delete()
+            db.query(Post).filter(Post.id == post_id).delete()
+            db.commit()
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User is not post author.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Couldn't validate credentials.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
