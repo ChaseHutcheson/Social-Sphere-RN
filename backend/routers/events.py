@@ -43,9 +43,7 @@ def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    print("Before conditional")
     if verify_token(access_token):
-        print("Before decode")
         data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = data.get("sub")
 
