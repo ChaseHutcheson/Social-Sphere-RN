@@ -27,6 +27,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = Settings.REFRESH_TOKEN_EXPIRE_DAYS
 TOKEN_TYPE = Settings.TOKEN_TYPE
 RESET_CODE_EXPIRE_MINUTES = 30
 GOOGLE_MAPS_API_KEY = Settings.GOOGLE_MAPS_API_KEY
+OAUTH_SCHEME = Settings.OAUTH_SCHEME
 
 reset_codes = {}
 
@@ -34,7 +35,7 @@ event_router = APIRouter(prefix="/events")
 
 
 @event_router.post("/make-post")
-def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token=str):
+def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token = str):
     """
     Endpoint to create a post. Requires a valid token for authentication.
     """
@@ -101,7 +102,7 @@ def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token
 
 
 @event_router.get("/attending-events", response_model=list[dict])
-def get_attending_events(db: Session = Depends(get_db), token=str):
+def get_attending_events(db: Session = Depends(get_db), access_token=str):
     """
     Endpoint to get all events that the user is attending. Requires a valid token for authentication.
     """
@@ -111,8 +112,8 @@ def get_attending_events(db: Session = Depends(get_db), token=str):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if verify_token(access_token):
+        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = data.get("sub")
 
         if user_id is None:
@@ -147,7 +148,7 @@ def get_attending_events(db: Session = Depends(get_db), token=str):
 
 @event_router.get("/events-in-area")
 def get_events_in_area(
-    address: str, radius: int = 50, db: Session = Depends(get_db), token: str = str
+    address: str, radius: int = 50, db: Session = Depends(get_db), access_token: str = str
 ):
     """
     Endpoint to get events in a specific area from the database.
@@ -164,7 +165,7 @@ def get_events_in_area(
     if not coordinates:
         raise HTTPException(status_code=400, detail="Invalid address")
 
-    if verify_token(token):
+    if verify_token(access_token):
         # Get events from the database within the specified radius
         events = get_events_from_database(
             coordinates["lat"], coordinates["lng"], radius, db
@@ -177,13 +178,13 @@ def get_events_in_area(
 
 
 @event_router.get("/newest-events")
-def get_newest_events(db: Session = Depends(get_db), token=str):
+def get_newest_events(db: Session = Depends(get_db), access_token=str):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    if verify_token(token):
+    if verify_token(access_token):
         try:
             events_as_dict = []
 
@@ -215,10 +216,10 @@ def get_newest_events(db: Session = Depends(get_db), token=str):
 
 @event_router.post("/edit-event")
 def edit_event(
-    post_data: PostCreate, post_id: str, token: str, db: Session = Depends(get_db)
+    post_data: PostCreate, post_id: str, access_token: str, db: Session = Depends(get_db)
 ):
-    if verify_token(token):
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if verify_token(access_token):
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if is_author(user_id, post_id, db):
             post = db.query(Post).filter(Post.id == post_id).first()
@@ -249,7 +250,7 @@ def edit_event(
 
 
 @event_router.post("/attend-event/{post_id}")
-def attend_event(post_id: str, token: str, db: Session = Depends(get_db)):
+def attend_event(post_id: str, access_token: str, db: Session = Depends(get_db)):
     """
     Endpoint to attend an event. Requires a valid token for authentication.
     """
@@ -259,8 +260,8 @@ def attend_event(post_id: str, token: str, db: Session = Depends(get_db)):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if verify_token(access_token):
+        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = data.get("sub")
 
         if user_id is None:
@@ -294,7 +295,7 @@ def attend_event(post_id: str, token: str, db: Session = Depends(get_db)):
 
 
 @event_router.post("/unattend-event/{post_id}")
-def unattend_event(post_id: int, db: Session = Depends(get_db), token=str):
+def unattend_event(post_id: int, db: Session = Depends(get_db), access_token=str):
     """
     Endpoint to unattend an event. Requires a valid token for authentication.
     """
@@ -304,8 +305,8 @@ def unattend_event(post_id: int, db: Session = Depends(get_db), token=str):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if verify_token(token):
-        data = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if verify_token(access_token):
+        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = data.get("sub")
 
         if user_id is None:
@@ -339,9 +340,9 @@ def unattend_event(post_id: int, db: Session = Depends(get_db), token=str):
 
 
 @event_router.delete("/delete-event")
-def delete_event(post_id: str, token: str, db: Session = Depends(get_db)):
-    if verify_token(token):
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+def delete_event(post_id: str, access_token: str, db: Session = Depends(get_db)):
+    if verify_token(access_token):
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if is_author(user_id, post_id, db):
             db.query(user_post_association).filter(

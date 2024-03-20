@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, APIRouter, Request, Body
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordRequestForm
 from app.database import engine
 from app.models import Base
 from routers.users import user_router

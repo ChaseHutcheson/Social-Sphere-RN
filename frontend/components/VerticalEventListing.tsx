@@ -1,7 +1,6 @@
 import { View, Text, Pressable, TouchableOpacity } from "react-native";
 import React from "react";
 import { Link, router } from "expo-router";
-import EventDetailsPage from "../pages/EventDetailsPage";
 
 interface VerticalEventListingProps {
   title: string;

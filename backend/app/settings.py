@@ -1,3 +1,5 @@
+from fastapi.security import OAuth2PasswordBearer
+
 class Settings:
     # Secret key for encoding and decoding JWT tokens
     SECRET_KEY = "HLBn0v0m3Uo0ZknwzqLRr3qYe6IeHCaf"
@@ -16,3 +18,6 @@ class Settings:
 
     # Google Maps API key for geocoding addresses
     GOOGLE_MAPS_API_KEY = "AIzaSyDd0YxufG2QqTaN5JG00q_oT2lmbg-czWA"
+
+    OAUTH_SCHEME = oauth_2_scheme = OAuth2PasswordBearer(tokenUrl="users/doc-login")
+

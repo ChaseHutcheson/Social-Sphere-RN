@@ -100,6 +100,23 @@ def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
         }
 
 
+@user_router.post("/doc-login")
+def login_user(user_login: UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user_login.email).first()
+    if db_user is None:
+        raise HTTPException(status_code=400, detail="Invalid user")
+    elif not verify_password(user_login.password, db_user.password):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    access_token = create_access_token(
+        data={"sub": str(db_user.id), "username": db_user.username}
+    )
+
+    return {
+        "access_token": access_token
+    }
+
+
 @user_router.post("/logout")
 def logout_user(access_token: str, db: Session = Depends(get_db)):
     try:
@@ -114,18 +131,6 @@ def logout_user(access_token: str, db: Session = Depends(get_db)):
             raise HTTPException(status_code=401, detail="Invalid token")
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
-
-
-@user_router.post("/refresh-token")
-def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
-    try:
-        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload["sub"]
-        get_users_refresh_token(db, user_id)
-        access_token = create_access_token(data={"sub": str(user_id)})
-        return {"access_token": access_token, "token_type": TOKEN_TYPE}
-    except jwt.JWTError as e:
-        raise HTTPException(status_code=401, detail=f"JWT Error: {e}")
 
 
 @user_router.get("/me")
@@ -148,7 +153,6 @@ def get_current_user(db: Session = Depends(get_db), token=str):
             else:
                 return {
                     "id": db_user.id,
-                    "profile_picture": db_user.profile_picture,
                     "first_name": db_user.first_name,
                     "last_name": db_user.last_name,
                     "username": db_user.username,
