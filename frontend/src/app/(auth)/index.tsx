@@ -9,10 +9,10 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
-    const { onLogin, onRegister} = useAuth();
+    const { onSignIn, onSignUp} = useAuth();
 
     const login = async () => {
-        const result = await onLogin!(email, password);
+        const result = await onSignIn!(email, password);
         console.log(result)
         if (result && result.error) {
             alert(result.msg);
@@ -20,7 +20,14 @@ const Login = () => {
     }
 
     const register = async () => {
-        const result = await onRegister!(firstName, lastName, username, email, password, dateOfBirth);
+        const result = await onSignUp!(
+          firstName,
+          lastName,
+          username,
+          email,
+          password,
+          dateOfBirth
+        );
         if (result && result.error) {
             alert(result.msg)
         } else {

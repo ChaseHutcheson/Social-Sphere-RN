@@ -2,15 +2,17 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import {
   DarkTheme,
   DefaultTheme,
+  NavigationContainer,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 
 import { useColorScheme } from "@/src/components/useColorScheme";
 import { AuthProvider, useAuth } from "../context/AuthContext";
+
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,32 +48,29 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
 }
 
-function RootLayoutNav() {
+function RootLayoutNav(): JSX.Element {
   const colorScheme = useColorScheme();
-  const { authState, onLogout } = useAuth();
+  const { authState } = useAuth();
 
   return (
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <AuthProvider>
-        {authState?.authenticated ? (
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }}>
+        {authState?.authenticated === true ? (
+          <>
             <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          </Stack>
+            <Stack.Screen name="(tabs)" />
+          </>
         ) : (
-          <Stack>
-            <Stack.Screen
-              name="(auth)"
-              options={{
-                headerShown: false,
-              }}
-            />
-          </Stack>
+            <Stack.Screen name="(auth)" />
         )}
-        </AuthProvider>
-      </ThemeProvider>
+      </Stack>
+    </ThemeProvider>
   );
 }
