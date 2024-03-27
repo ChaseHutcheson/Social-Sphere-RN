@@ -63,10 +63,8 @@ function RootLayoutNav(): JSX.Element {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         {authState?.authenticated === true ? (
-          <>
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        
             <Stack.Screen name="(tabs)" />
-          </>
         ) : (
             <Stack.Screen name="(auth)" />
         )}

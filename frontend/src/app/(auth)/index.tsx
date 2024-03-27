@@ -1,39 +1,15 @@
 import { View, Text, SafeAreaView, Platform, StatusBar, TextInput, StyleSheet, Button } from 'react-native'
-import React, { useState } from 'react'
-import { useAuth } from '@/src/context/AuthContext';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios';
 
 const Login = () => {
-    const [firstName, setFirstName] = useState("");
+    const [firstName, setFirstName] = useState("");                                                                                                                                             // JON WAS HERE
     const [lastName, setLastName] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
-    const { onSignIn, onSignUp} = useAuth();
 
-    const login = async () => {
-        const result = await onSignIn!(email, password);
-        console.log(result)
-        if (result && result.error) {
-            alert(result.msg);
-        }
-    }
-
-    const register = async () => {
-        const result = await onSignUp!(
-          firstName,
-          lastName,
-          username,
-          email,
-          password,
-          dateOfBirth
-        );
-        if (result && result.error) {
-            alert(result.msg)
-        } else {
-            login()
-        }
-    }
 
     return (
       <SafeAreaView
