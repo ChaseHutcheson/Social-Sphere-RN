@@ -2,21 +2,17 @@ import { StyleSheet } from "react-native";
 
 import EditScreenInfo from "@/src/components/EditScreenInfo";
 import { Text, View } from "@/src/components/Themed";
-import { useAuth } from "@/src/context/AuthContext";
-import { useEffect } from "react";
-import { Linker } from "@/src/utils/Linker";
 
-export default function TabOneScreen() {
-  const { authData } = useAuth();
-
-  useEffect(() => {
-    if (!authData.isAuthenticated) Linker("/(auth)/");
-    else Linker("/(tabs)/");
-  }, [authData.isAuthenticated]);
-
+export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Text>{authData.isAuthenticated ? "True" : "False"}</Text>
+      <Text style={styles.title}>Tab Two</Text>
+      <View
+        style={styles.separator}
+        lightColor="#eee"
+        darkColor="rgba(255,255,255,0.1)"
+      />
+      <EditScreenInfo path="app/(tabs)/two.tsx" />
     </View>
   );
 }

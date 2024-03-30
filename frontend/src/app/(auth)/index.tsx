@@ -1,77 +1,108 @@
-import { View, Text, SafeAreaView, Platform, StatusBar, TextInput, StyleSheet, Button } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import axios from 'axios';
+import { useAuth } from "@/src/context/AuthContext";
+import { useSignIn } from "@/src/hooks/useSignIn";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  SafeAreaView,
+  View,
+  Appearance,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+  StatusBar,
+} from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Colors from "@/src/constants/Colors";
+import { Linker } from "@/src/utils/Linker";
+import styles from "@/src/constants/Theme";
 
-const Login = () => {
-    const [firstName, setFirstName] = useState("");                                                                                                                                             // JON WAS HERE
-    const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState("");
-    const [dateOfBirth, setDateOfBirth] = useState("");
+export default function SignInScreen() {
+  // JON WAS HERE | Love you pookie
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { handleSignIn, isLoading, error } = useSignIn();
+  const { authData } = useAuth();
 
+  return (
+    <SafeAreaView
+      style={{
+        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        flex: 1,
+        backgroundColor:
+          Appearance.getColorScheme() === "light"
+            ? Colors.light.background
+            : Colors.dark.background,
+      }}
+    >
+      <View style={styles.container}>
+        <KeyboardAwareScrollView>
+          <View style={styles.header}>
+            <Text style={styles.title}>
+              Sign in to <Text style={{ color: "#6C63FF" }}>Social Sphere</Text>
+            </Text>
 
-    return (
-      <SafeAreaView
-        style={{
-          marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        }}
-      >
-        <View style={styles.container}>
-          <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="First Name"
-              onChangeText={(text: string) => setFirstName(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Last Name"
-              onChangeText={(text: string) => setLastName(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Username"
-              onChangeText={(text: string) => setUsername(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              onChangeText={(text: string) => setEmail(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry={true}
-              onChangeText={(text: string) => setPassword(text)}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Birthday (yyyy-MM-dd)"
-              onChangeText={(text: string) => setDateOfBirth(text)}
-            />
-            <Button onPress={login} title="Sign In" />
-            <Button onPress={register} title="Sign Up" />
+            <Text style={styles.subtitle}>Make Events and Spread Ideas</Text>
           </View>
-        </View>
-      </SafeAreaView>
-    );
+
+          <View style={styles.form}>
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Email address</Text>
+
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                onChangeText={(email) => setEmail(email)}
+                placeholder="john@example.com"
+                placeholderTextColor="#6b7280"
+                style={styles.inputControl}
+                value={email}
+              />
+            </View>
+
+            <View style={styles.input}>
+              <Text style={styles.inputLabel}>Password</Text>
+
+              <TextInput
+                autoCorrect={false}
+                onChangeText={(password) => setPassword(password)}
+                placeholder="********"
+                placeholderTextColor="#6b7280"
+                style={styles.inputControl}
+                secureTextEntry={true}
+                value={password}
+              />
+            </View>
+
+            <View style={styles.formAction}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleSignIn(email, password);
+                }}
+              >
+                <View style={styles.btn}>
+                  <Text style={styles.btnText}>Sign in</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.formLink}>Forgot password?</Text>
+          </View>
+        </KeyboardAwareScrollView>
+
+        <TouchableOpacity
+          onPress={() => {
+            Linker("(auth)/sign-up");
+          }}
+          style={{ marginTop: "auto" }}
+        >
+          <Text style={styles.formFooter}>
+            Don't have an account?{" "}
+            <Text style={{ textDecorationLine: "underline" }}>Sign up</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
 }
-
-const styles = StyleSheet.create({
-    container: {
-
-    },
-    form: {
-
-    },
-    input: {
-
-    }
-})
-
-export default Login
