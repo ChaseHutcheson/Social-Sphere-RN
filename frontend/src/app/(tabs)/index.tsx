@@ -43,16 +43,16 @@ export default function TabOneScreen() {
             Linker("(tabs)");
           } else {
             console.log("Token expired, redirecting to login...");
-            Linker("/(auth)/");
+            Linker("(auth)");
           }
         } else {
           console.log("No access token found, redirecting to login...");
-          Linker("/(auth)/");
+          Linker("(auth)");
         }
       }
     }
     checkStoredToken();
-  }, []);
+  }, [authData.isAuthenticated]);
 
   return (
     <View style={styles.container}>
