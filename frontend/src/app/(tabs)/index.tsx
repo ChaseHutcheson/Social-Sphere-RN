@@ -14,33 +14,45 @@ export default function TabOneScreen() {
 
   useEffect(() => {
     async function checkStoredToken() {
-      let isTokenExpired: any;
-      let userDataRes: any;
-      if (authData.isAuthenticated) return;
-      console.log("User Auth: ", authData.isAuthenticated);
-      const past_access_token = await SecureStore.getItemAsync("access_token");
-      console.log("Previous Token: ", past_access_token);
-      if (past_access_token !== null) {
-        isTokenExpired = await authBase
-          .get(`/is-token-expired?access_token=${past_access_token}`)
-          .then((res) => res.data.result);
-        if (isTokenExpired === false) {
-          userDataRes = (await userBase.get(`/me?token=${past_access_token}`))
-            .data;
-          console.log(userDataRes);
-          setAuthData({
-            userData: userDataRes,
-            authToken: past_access_token,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+      if (authData.isAuthenticated) {
+        console.log("Already authenticated, skipping token check...");
+        Linker("(tabs)");
+        return;
+      } else {
+        console.log("Not authenticated, beginning token check...");
+        let isTokenExpired: any;
+        let userDataRes: any;
+        const past_access_token = await SecureStore.getItemAsync(
+          "access_token"
+        );
+        if (past_access_token !== null) {
+          console.log("Access token found!");
+          isTokenExpired = await authBase
+            .get(`/is-token-expired?access_token=${past_access_token}`)
+            .then((res) => res.data.result);
+          if (isTokenExpired === false) {
+            userDataRes = (await userBase.get(`/me?token=${past_access_token}`))
+              .data;
+            console.log("User data recieved, adding to AuthData");
+            setAuthData({
+              userData: userDataRes,
+              authToken: past_access_token,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+            Linker("(tabs)");
+          } else {
+            console.log("Token expired, redirecting to login...");
+            Linker("/(auth)/");
+          }
+        } else {
+          console.log("No access token found, redirecting to login...");
+          Linker("/(auth)/");
         }
       }
     }
     checkStoredToken();
-    if (!authData.isAuthenticated) Linker("/(auth)/");
-    else Linker("/(tabs)/");
-  }, [authData.isAuthenticated]);
+  }, []);
 
   return (
     <View style={styles.container}>
