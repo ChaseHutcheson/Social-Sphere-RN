@@ -24,7 +24,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarStyle: {
           backgroundColor:
-            Appearance.getColorScheme() === "light" ? "#fff" : "#161D28",
+            Appearance.getColorScheme() === "light" ? "#fff" : "#1e1f20",
         },
         headerShown: useClientOnlyValue(false, true),
       }}
@@ -49,6 +49,30 @@ export default function TabLayout() {
               </Pressable>
             </Link>
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: "Search",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: "Create",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="attending"
+        options={{
+          title: "Attending",
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />
       <Tabs.Screen

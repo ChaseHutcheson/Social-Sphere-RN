@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
-import { User, backendBase } from "../constants/Types";
+import { User, userBase } from "../constants/Types";
 import * as SecureStore from "expo-secure-store";
 
-interface AuthData {
+export interface AuthData {
   userData: User | null;
   authToken: string | null;
   isAuthenticated: boolean;
@@ -45,13 +45,11 @@ export const AuthProvider = ({ children }: any) => {
   const signIn = async (email: string, password: string) => {
     setAuthData({ ...authData, isLoading: true });
     try {
-      const tokens = await backendBase.post("/login", {
+      const tokens = await userBase.post("/login", {
         email: email,
         password: password,
       });
-      const user = await backendBase.get(
-        `/me?token=${tokens.data.access_token}`
-      );
+      const user = await userBase.get(`/me?token=${tokens.data.access_token}`);
 
       await SecureStore.setItemAsync("access_token", tokens.data.access_token);
 
@@ -76,7 +74,7 @@ export const AuthProvider = ({ children }: any) => {
   ) => {
     setAuthData({ ...authData, isLoading: true });
     try {
-      const tokens = await backendBase.post("/register", {
+      const tokens = await userBase.post("/register", {
         first_name: firstName,
         last_name: lastName,
         username: username,
@@ -84,9 +82,7 @@ export const AuthProvider = ({ children }: any) => {
         email: email,
         password: password,
       });
-      const user = await backendBase.get(
-        `/me?token=${tokens.data.access_token}`
-      );
+      const user = await userBase.get(`/me?token=${tokens.data.access_token}`);
 
       await SecureStore.setItemAsync("access_token", tokens.data.access_token);
 

@@ -7,7 +7,8 @@ from fastapi import Depends, HTTPException
 from jose import jwt
 from app.models import User
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from time import time
 from app.settings import Settings
 from app.helper_funcs import (
     create_access_token,
@@ -18,6 +19,7 @@ from app.helper_funcs import (
 )
 import smtplib
 from email.mime.text import MIMEText
+import math
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -30,6 +32,17 @@ RESET_CODE_EXPIRE_MINUTES = 30
 GOOGLE_MAPS_API_KEY = Settings.GOOGLE_MAPS_API_KEY
 
 reset_codes = {}
+
+
+@auth_router.get("/is-token-expired")
+def check_token(access_token: str):
+    payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+    exp = payload["exp"]
+    if exp < math.floor(time()):
+        return {"result": True}
+    else:
+        return {"result": False}
+
 
 @auth_router.post("/refresh-access-token")
 def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
