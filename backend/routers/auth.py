@@ -20,6 +20,7 @@ from app.helper_funcs import (
 import smtplib
 from email.mime.text import MIMEText
 import math
+import jose
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -36,13 +37,15 @@ reset_codes = {}
 
 @auth_router.get("/is-token-expired")
 def check_token(access_token: str):
-    payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-    exp = payload["exp"]
-    if exp < math.floor(time()):
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp = payload["exp"]
+        if exp < math.floor(time()):
+            pass
+        else:
+            return {"result": False}
+    except jose.exceptions.ExpiredSignatureError:
         return {"result": True}
-    else:
-        return {"result": False}
-
 
 @auth_router.post("/refresh-access-token")
 def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
