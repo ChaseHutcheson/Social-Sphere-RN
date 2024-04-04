@@ -56,14 +56,19 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      <Text>{authData.isAuthenticated ? "True" : "False"}</Text>
+      <View style={{ flex: 0.4, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{textAlign: "left"}}>Events Near You</Text>
+      </View>
+      <View style={styles.container}>
+        <Text>Events Near You</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     alignItems: "center",
     justifyContent: "center",
   },
