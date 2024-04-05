@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { Linker } from "@/src/utils/Linker";
 import { authBase, userBase } from "@/src/constants/Types";
 import { useSignIn } from "@/src/hooks/useSignIn";
+import { openDatabase } from "expo-sqlite";
+import Settings from "@/src/config"
 
 export default function TabOneScreen() {
   const { authData, setAuthData } = useAuth();
@@ -40,6 +42,13 @@ export default function TabOneScreen() {
               isAuthenticated: true,
               isLoading: false,
             });
+            const db = openDatabase("testDB.db")
+            const readOnly = true;
+            await db.transactionAsync(async (tx) => {
+              const result = await tx.executeSqlAsync(
+                "CREATE TABLE events (post_id: INTEGER, user_id: INTEGER, user_name: VARCHAR(255), title: VARCHAR(255), content: VARCHAR(255), address: VARCHAR(255), latitude: DECIMAL, longitude: DECIMAL, created_at: VARCHAR(255), attendees: INTEGER, deadline: VARCHAR(255))", []);
+              console.log("Count:", result.rows[0]["COUNT(*)"]);
+            }, readOnly);
             Linker("(tabs)");
           } else {
             console.log("Token expired, redirecting to login...");
