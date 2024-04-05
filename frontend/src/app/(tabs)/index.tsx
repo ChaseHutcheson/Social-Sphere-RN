@@ -5,7 +5,7 @@ import { Text, View } from "@/src/components/Themed";
 import { useAuth } from "@/src/context/AuthContext";
 import { useEffect } from "react";
 import { Linker } from "@/src/utils/Linker";
-import { authBase, userBase } from "@/src/constants/Types";
+import { User, authBase, userBase } from "@/src/constants/Types";
 import { useSignIn } from "@/src/hooks/useSignIn";
 
 export default function TabOneScreen() {
@@ -20,8 +20,8 @@ export default function TabOneScreen() {
         return;
       } else {
         console.log("Not authenticated, beginning token check...");
-        let isTokenExpired: any;
-        let userDataRes: any;
+        let isTokenExpired: boolean;
+        let userDataRes: User;
         const past_access_token = await SecureStore.getItemAsync(
           "access_token"
         );
@@ -30,6 +30,7 @@ export default function TabOneScreen() {
           isTokenExpired = await authBase
             .get(`/is-token-expired?access_token=${past_access_token}`)
             .then((res) => res.data.result);
+          console.log("Is token expired? ", isTokenExpired);
           if (isTokenExpired === false) {
             userDataRes = (await userBase.get(`/me?token=${past_access_token}`))
               .data;
@@ -56,8 +57,10 @@ export default function TabOneScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={{ flex: 0.4, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{textAlign: "left"}}>Events Near You</Text>
+      <View
+        style={{ flex: 0.4, alignItems: "center", justifyContent: "center" }}
+      >
+        <Text style={{ textAlign: "left" }}>Events Near You</Text>
       </View>
       <View style={styles.container}>
         <Text>Events Near You</Text>
