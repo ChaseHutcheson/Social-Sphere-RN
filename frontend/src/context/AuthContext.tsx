@@ -1,104 +1,100 @@
-import React, { createContext, useContext, useState } from "react";
-import { User, userBase } from "../constants/Types";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { User } from "../constants/Types";
+import axios from "axios";
 import * as SecureStore from "expo-secure-store";
+import { getMe } from "@/src/api/users";
+import { signIn, signUp } from "@/src/api/auth";
 
-export interface AuthData {
-  userData: User | null;
+interface IAuthContext {
+  user: User | null;
   authToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-}
-
-interface AuthContextType {
-  authData: AuthData;
-  setAuthData: (data: AuthData) => void;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (
-    firstName: string,
-    lastName: string,
+  contextSignIn: (email: string, password: string) => Promise<void>;
+  contextSignUp: (
     username: string,
     email: string,
-    password: string,
-    dateOfBirth: string
+    password: string
   ) => Promise<void>;
 }
 
-const defaultAuthData: AuthData = {
-  userData: null,
+const AuthContext = createContext<IAuthContext>({
+  user: null,
   authToken: null,
   isAuthenticated: false,
   isLoading: false,
-};
-
-const AuthContext = createContext<AuthContextType>({
-  authData: defaultAuthData,
-  setAuthData: () => {},
-  signIn: async () => {},
-  signUp: async () => {},
+  contextSignIn: async () => {},
+  contextSignUp: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: any) => {
-  const [authData, setAuthData] = useState<AuthData>(defaultAuthData);
+  const [user, setUser] = useState<User | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
+  const [isLoading, setLoading] = useState<boolean>(true);
 
-  const signIn = async (email: string, password: string) => {
-    setAuthData({ ...authData, isLoading: true });
+  useEffect(() => {
+    if (authToken) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  }, [authToken]);
+
+  const contextSignIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const tokens = await userBase.post("/login", {
-        email: email,
-        password: password,
-      });
-      const user = await userBase.get(`/me?token=${tokens.data.access_token}`);
+      const tokens = await signIn(email, password);
+      console.log(tokens.access_token);
+      const user: User = await getMe(tokens.access_token);
 
-      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.access_token);
 
-      setAuthData({
-        userData: user.data,
-        authToken: tokens.data.access_token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      setUser(user);
+      setAuthToken(tokens.access_token);
+      setAuthenticated(true);
+      setLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const signUp = async (
-    firstName: string,
-    lastName: string,
+  const contextSignUp = async (
     username: string,
     email: string,
-    password: string,
-    dateOfBirth: string
+    password: string
   ) => {
-    setAuthData({ ...authData, isLoading: true });
+    setLoading(true);
     try {
-      const tokens = await userBase.post("/register", {
-        first_name: firstName,
-        last_name: lastName,
-        username: username,
-        date_of_birth: dateOfBirth,
-        email: email,
-        password: password,
-      });
-      const user = await userBase.get(`/me?token=${tokens.data.access_token}`);
+      const tokens = await signUp(username, email, password);
+      console.log(tokens);
+      console.log(tokens.access_token);
+      const user: User = await getMe(tokens.access_token);
 
-      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.access_token);
 
-      setAuthData({
-        userData: user.data,
-        authToken: tokens.data.access_token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      setUser(user);
+      setAuthToken(tokens.access_token);
+      setAuthenticated(true);
+      setLoading(false);
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ authData, setAuthData, signIn, signUp }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        authToken,
+        isAuthenticated,
+        isLoading,
+        contextSignIn,
+        contextSignUp,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
