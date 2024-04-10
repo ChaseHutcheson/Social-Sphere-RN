@@ -14,17 +14,38 @@ import { useAuth } from "@/src/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
 import Button from "@/src/components/CustomButton";
+import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 const WelcomeScreen = () => {
-  const [fadeAnim] = useState(new Animated.Value(0));
+  const [opacity] = useState(new Animated.Value(0));
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
+  async function fadeIn() {
+    Animated.timing(opacity, {
+      toValue: 1, 
+      duration: 2000,
       useNativeDriver: true
     }).start();
+  }
+
+  async function fadeOut() {
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 2000,
+      useNativeDriver: true,
+    }).start();
+  }
+
+  useEffect(() => {
+    fadeIn();
+    setTimeout(() => {
+      fadeOut()
+      setTimeout(() => {
+        router.push("/(auth)/sign-up/sign-up-1");
+      }, 2000)
+    }, 2000)
   }, []);
+
+  
 
   return (
     <SafeAreaView
@@ -33,7 +54,7 @@ const WelcomeScreen = () => {
         flex: 1,
       }}
     >
-      <Animated.View style={{...styles.container, opacity: fadeAnim}}>
+      <Animated.View style={{...styles.container, opacity: opacity}}>
         <Text style={styles.title}>Welcome to</Text>
         <Text style={styles.underText}>Social Sphere</Text>
       </Animated.View>

@@ -32,27 +32,28 @@ const SignUpScreenOne = () => {
       }}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Create an Account</Text>
-        <Text style={styles.underText}>Double the meals, double the hope.</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Username"
-          onChangeText={(e) => setUsername(e)}
-        />
-        <TextInput
-          style={styles.textInput}
-          placeholder="Email"
-          onChangeText={(e) => setEmail(e)}
-        />
-        <TextInput
-          style={styles.passwordInput}
-          placeholder="Password"
-          onChangeText={(e) => setPassword(e)}
-        />
-        <Link href="/(auth)/sign-up">
-          <Text style={styles.buttonText}>Already have an account?</Text>
-        </Link>
-      </View>
+          <Text style={styles.title}>
+            We'll need some information to get started.
+          </Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Username"
+            onChangeText={(e) => setUsername(e)}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="Email"
+            onChangeText={(e) => setEmail(e)}
+          />
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            onChangeText={(e) => setPassword(e)}
+          />
+          <Link href="/(auth)/sign-up">
+            <Text style={styles.buttonText}>Already have an account?</Text>
+          </Link>
+        </View>
     </SafeAreaView>
   );
 };
@@ -66,9 +67,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 34,
-    fontWeight: "bold",
-    marginVertical: 5,
+    fontSize: 30,
+    width: "85%",
+    fontFamily: "OpenSans",
+    textAlign: "center",
+    color: "#0059FF",
   },
   underText: {
     fontSize: 17,
@@ -93,12 +96,13 @@ const styles = StyleSheet.create({
     color: "#31A062",
   },
   textInput: {
-    borderColor: "#828282",
-    borderRadius: 20,
+    borderRadius: 13,
     borderWidth: 1,
-    padding: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
     width: 330,
     margin: 5,
+    backgroundColor: "#F3F3F3",
   },
   passwordInput: {
     padding: 20,
