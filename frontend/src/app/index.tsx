@@ -17,19 +17,24 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: pic }} style={styles.image} />
+      <Image
+        source={require("@/assets/images/SplashScreenIcon.png")}
+        style={styles.image}
+      />
       <Text style={styles.title}>Social Sphere</Text>
       <Text style={styles.underText}>Make events, spread ideas!</Text>
 
       <Button
-        text="Create Account"
+        text="Get Started"
+        textColor="#0059FF"
+        backgroundColor="white"
         onPress={() => {
           router.push("/(auth)/sign-up");
         }}
       ></Button>
 
       <TouchableOpacity style={styles.button}>
-        <Link push href="/(auth)/sign-up">
+        <Link push href="/(auth)/sign-up/">
           <Text style={styles.buttonText}>Login</Text>
         </Link>
       </TouchableOpacity>
@@ -42,19 +47,23 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#0059FF",
   },
   title: {
-    fontSize: 34,
-    fontWeight: "bold",
-    marginVertical: 5,
+    fontSize: 60,
+    fontFamily: "Itim",
+    marginTop: 5,
+    color: "white"
   },
   underText: {
-    fontSize: 15,
-    fontWeight: "600",
+    fontSize: 31,
+    fontFamily: "Itim",
+    color: "white",
+    marginTop: -20,
     marginBottom: 90,
   },
   image: {
-    width: "50%",
+    height: "40%",
     aspectRatio: 1,
   },
   button: {
@@ -66,9 +75,10 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#31A062",
+    fontSize: 25,
+    fontFamily: "OpenSans",
+    color: "#fff",
+    textDecorationLine: "underline"
   },
   separator: {
     marginVertical: 30,
