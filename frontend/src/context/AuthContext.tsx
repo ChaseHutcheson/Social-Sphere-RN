@@ -10,6 +10,8 @@ interface IAuthContext {
   authToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  setUser: (data: User) => void,
+  setAuthenticated: (state: boolean) => void,
   contextSignIn: (email: string, password: string) => Promise<void>;
   contextSignUp: (
     username: string,
@@ -23,6 +25,12 @@ const AuthContext = createContext<IAuthContext>({
   authToken: null,
   isAuthenticated: false,
   isLoading: false,
+  setUser(data) {
+    
+  },
+  setAuthenticated(state) {
+    
+  },
   contextSignIn: async () => {},
   contextSignUp: async () => {},
 });
@@ -47,10 +55,10 @@ export const AuthProvider = ({ children }: any) => {
     setLoading(true);
     try {
       const tokens = await signIn(email, password);
-      console.log(tokens.access_token);
+      console.log(tokens);
       const user: User = await getMe(tokens.access_token);
 
-      await SecureStore.setItemAsync("access_token", tokens.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.access_token);      
 
       setUser(user);
       setAuthToken(tokens.access_token);
@@ -91,6 +99,8 @@ export const AuthProvider = ({ children }: any) => {
         authToken,
         isAuthenticated,
         isLoading,
+        setUser,
+        setAuthenticated,
         contextSignIn,
         contextSignUp,
       }}

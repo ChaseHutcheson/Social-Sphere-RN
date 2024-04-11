@@ -1,12 +1,40 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/src/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import Button from "@/src/components/CustomButton";
 import { useFonts } from "expo-font";
+import * as SecureStore from "expo-secure-store";
+import { checkToken } from "../api/auth";
+import { getMe } from "../api/users";
+import { User } from "../constants/Types";
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, setUser, setAuthenticated } = useAuth();
+
+  useEffect(() => {
+    async function checkStoredToken() {
+      const token = await SecureStore.getItemAsync("access_token");
+      console.log(token)
+      if (token != null) {
+        try {
+          const response = await checkToken(token);
+          console.log(response)
+          if (!response.result) {
+            const user: User = await getMe(token)
+            console.log(user)
+            setUser(user)
+            setAuthenticated(true)
+          } 
+        } catch (error) {
+          
+        }
+        
+      }
+    }
+    checkStoredToken()
+  }, [])
+  
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;

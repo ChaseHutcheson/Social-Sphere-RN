@@ -9,9 +9,10 @@ class UserCreate(BaseModel):
     first_name: str  # First name of the user
     last_name: str  # Last name of the user
     username: str  # Username chosen by the user
-    date_of_birth: PastDate  # Date of birth of the user (must be in the past)
     email: EmailStr  # Email address of the user
     password: str  # Password chosen by the user
+    address: str | None
+    date_of_birth: PastDate  # Date of birth of the user (must be in the past)
 
 class UserLogin(BaseModel):
     """
