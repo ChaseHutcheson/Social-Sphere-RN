@@ -35,7 +35,11 @@ event_router = APIRouter(prefix="/events")
 
 
 @event_router.post("/make-post")
-def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token = str):
+def make_post(
+    post_data: PostCreate,
+    db: Session = Depends(get_db),
+    access_token: str = Depends(OAUTH_SCHEME),
+):
     """
     Endpoint to create a post. Requires a valid token for authentication.
     """
@@ -102,7 +106,9 @@ def make_post(post_data: PostCreate, db: Session = Depends(get_db), access_token
 
 
 @event_router.get("/attending-events", response_model=list[dict])
-def get_attending_events(db: Session = Depends(get_db), access_token=str):
+def get_attending_events(
+    db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
+):
     """
     Endpoint to get all events that the user is attending. Requires a valid token for authentication.
     """
@@ -148,7 +154,10 @@ def get_attending_events(db: Session = Depends(get_db), access_token=str):
 
 @event_router.get("/events-in-area")
 def get_events_in_area(
-    address: str, radius: int = 50, db: Session = Depends(get_db), access_token: str = str
+    address: str = Depends(OAUTH_SCHEME),
+    radius: int = 50,
+    db: Session = Depends(get_db),
+    access_token: str = str,
 ):
     """
     Endpoint to get events in a specific area from the database.
@@ -178,7 +187,9 @@ def get_events_in_area(
 
 
 @event_router.get("/newest-events")
-def get_newest_events(db: Session = Depends(get_db), access_token=str):
+def get_newest_events(
+    db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -216,7 +227,10 @@ def get_newest_events(db: Session = Depends(get_db), access_token=str):
 
 @event_router.post("/edit-event")
 def edit_event(
-    post_data: PostCreate, post_id: str, access_token: str, db: Session = Depends(get_db)
+    post_data: PostCreate,
+    post_id: str,
+    access_token: str = Depends(OAUTH_SCHEME),
+    db: Session = Depends(get_db),
 ):
     if verify_token(access_token):
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -250,7 +264,11 @@ def edit_event(
 
 
 @event_router.post("/attend-event/{post_id}")
-def attend_event(post_id: str, access_token: str, db: Session = Depends(get_db)):
+def attend_event(
+    post_id: str,
+    access_token: str = Depends(OAUTH_SCHEME),
+    db: Session = Depends(get_db),
+):
     """
     Endpoint to attend an event. Requires a valid token for authentication.
     """
@@ -295,7 +313,11 @@ def attend_event(post_id: str, access_token: str, db: Session = Depends(get_db))
 
 
 @event_router.post("/unattend-event/{post_id}")
-def unattend_event(post_id: int, db: Session = Depends(get_db), access_token=str):
+def unattend_event(
+    post_id: int,
+    db: Session = Depends(get_db),
+    access_token: str = Depends(OAUTH_SCHEME),
+):
     """
     Endpoint to unattend an event. Requires a valid token for authentication.
     """
@@ -340,7 +362,11 @@ def unattend_event(post_id: int, db: Session = Depends(get_db), access_token=str
 
 
 @event_router.delete("/delete-event")
-def delete_event(post_id: str, access_token: str, db: Session = Depends(get_db)):
+def delete_event(
+    post_id: str,
+    access_token: str = Depends(OAUTH_SCHEME),
+    db: Session = Depends(get_db),
+):
     if verify_token(access_token):
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")

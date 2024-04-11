@@ -18,6 +18,7 @@ from app.helper_funcs import (
     generate_reset_code,
 )
 import smtplib
+from typing import Annotated
 from email.mime.text import MIMEText
 import math
 import jose
@@ -28,6 +29,7 @@ SECRET_KEY = Settings.SECRET_KEY
 ALGORITHM = Settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = Settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = Settings.REFRESH_TOKEN_EXPIRE_DAYS
+OAUTH_SCHEME = Settings.OAUTH_SCHEME
 TOKEN_TYPE = Settings.TOKEN_TYPE
 RESET_CODE_EXPIRE_MINUTES = 30
 GOOGLE_MAPS_API_KEY = Settings.GOOGLE_MAPS_API_KEY
@@ -36,9 +38,9 @@ reset_codes = {}
 
 
 @auth_router.get("/is-token-expired")
-def check_token(access_token: str):
+def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
     try:
-        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         exp = payload["exp"]
         if exp < math.floor(time()):
             pass
@@ -46,6 +48,7 @@ def check_token(access_token: str):
             return {"result": False}
     except jose.exceptions.ExpiredSignatureError:
         return {"result": True}
+
 
 @auth_router.post("/refresh-access-token")
 def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):

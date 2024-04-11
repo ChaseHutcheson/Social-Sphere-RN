@@ -36,12 +36,13 @@ user_post_association = Table(
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    first_name = Column(String(50))
-    last_name = Column(String(50))
-    username = Column(String(50))
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    username = Column(String(50), nullable=False)
     email = Column(String(100), unique=True, index=True)
-    password = Column(String(255))
-    date_of_birth = Column(Date, nullable=True, default=None)
+    password = Column(String(255), nullable=False)
+    date_of_birth = Column(Date, nullable=False, default=None)
+    address = Column(String(95), nullable=True)
     is_verified = Column(Boolean, default=False)
     verified_at = Column(DateTime, nullable=True, default=None)
     updated_last = Column(DateTime, nullable=True, default=None, onupdate=datetime.now)

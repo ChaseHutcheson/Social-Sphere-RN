@@ -1,20 +1,26 @@
 import {
+  KeyboardAvoidingView,
+  KeyboardAvoidingViewComponent,
   Platform,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/src/context/AuthContext";
-import { Link, Redirect } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
+import { useFonts } from "expo-font";
 import Button from "@/src/components/CustomButton";
+import {
+  KeyboardAwareScrollView,
+  KeyboardAwareSectionList,
+} from "react-native-keyboard-aware-scroll-view";
 
-const SignIn = () => {
+const SignInScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { contextSignIn, isAuthenticated } = useAuth();
@@ -30,85 +36,105 @@ const SignIn = () => {
         flex: 1,
       }}
     >
-      <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
-        <Text style={styles.underText}>Double the meals, double the hope.</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Email Address"
-          onChangeText={(e) => setEmail(e)}
-        ></TextInput>
-        <TextInput
-          style={styles.passwordInput}
-          placeholder="Password"
-          onChangeText={(e) => setPassword(e)}
-        />
+      <KeyboardAwareScrollView
+        style={styles.container}
+        contentContainerStyle={{
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={styles.aboveTitle}>Welcome back to</Text>
+        <Text style={styles.title}>Social Sphere</Text>
+        <View style={styles.formContainer}>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Email</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="JohnDoe1970@email.com"
+              placeholderTextColor="#848484"
+              onChangeText={(e) => setEmail(e)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Password</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="•••••••••••••••"
+              placeholderTextColor="#848484"
+              secureTextEntry={true}
+              onChangeText={(e) => setPassword(e)}
+            />
+          </View>
+        </View>
         <Button
-          text="Login"
+          text="Sign In!"
+          backgroundColor="#0059FF"
+          textColor="#fff"
           onPress={() => {
             contextSignIn(email, password);
           }}
         ></Button>
+        <Text style={styles.loginButtonLabel}>Don't have an account?</Text>
         <Link href="/(auth)/sign-up/">
-          <Text style={styles.buttonText}>Dont have an account?</Text>
+          <Text style={styles.textButton}>Sign Up!</Text>
         </Link>
-      </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
 
-export default SignIn;
+export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  aboveTitle: {
+    marginTop: 100,
+    fontSize: 30,
+    fontFamily: "OpenSans",
+    marginBottom: -10,
+    color: "#0059FF",
   },
   title: {
-    fontSize: 34,
-    fontWeight: "bold",
-    marginVertical: 5,
+    fontSize: 50,
+    fontFamily: "Itim",
+    color: "#0059FF",
   },
-  underText: {
+  loginButtonLabel: {
+    marginVertical: 10,
+    fontFamily: "OpenSans",
     fontSize: 17,
     fontWeight: "600",
-    marginBottom: 90,
   },
-  image: {
-    width: "50%",
-    aspectRatio: 1,
-  },
-  button: {
-    backgroundColor: "transparent",
-    padding: 20,
-    width: 330,
-    alignItems: "center",
-    borderRadius: 20,
-    marginVertical: 5,
-  },
-  buttonText: {
-    fontSize: 16,
+  textButton: {
+    fontFamily: "OpenSans",
+    fontSize: 17,
+    textDecorationLine: "underline",
     fontWeight: "600",
-    color: "#31A062",
+    color: "#0059FF",
   },
   textInput: {
-    borderColor: "#828282",
-    borderRadius: 20,
+    color: "#848484",
+    fontFamily: "OpenSans",
+    borderRadius: 13,
     borderWidth: 1,
-    padding: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     width: 330,
     margin: 5,
+    backgroundColor: "#F3F3F3",
+    borderColor: "#F3F3F3",
   },
-  passwordInput: {
-    padding: 20,
-    width: 330,
-    margin: 5,
-    marginBottom: 90,
+  textInputLabel: {
+    fontFamily: "OpenSans",
+    color: "#848484",
+    marginLeft: 15,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+  textInputContainer: {
+    marginVertical: 20,
+  },
+  formContainer: {
+    marginVertical: 20,
   },
 });

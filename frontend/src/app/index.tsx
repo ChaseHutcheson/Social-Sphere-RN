@@ -34,7 +34,7 @@ export default function App() {
       ></Button>
 
       <TouchableOpacity style={styles.button}>
-        <Link push href="/(auth)/sign-up/">
+        <Link push href="/(auth)/sign-in">
           <Text style={styles.buttonText}>Login</Text>
         </Link>
       </TouchableOpacity>
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 60,
     fontFamily: "Itim",
     marginTop: 5,
-    color: "white"
+    color: "white",
   },
   underText: {
     fontSize: 31,
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontFamily: "OpenSans",
     color: "#fff",
-    textDecorationLine: "underline"
+    textDecorationLine: "underline",
   },
   separator: {
     marginVertical: 30,
