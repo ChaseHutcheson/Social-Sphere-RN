@@ -14,22 +14,33 @@ export default function App() {
 
   useEffect(() => {
     async function checkStoredToken() {
-      const token = await SecureStore.getItemAsync("access_token");
-      console.log(token)
-      if (token != null) {
-        try {
-          const response = await checkToken(token);
-          console.log(response)
-          if (!response.result) {
-            const user: User = await getMe(token)
-            console.log(user)
-            setUser(user)
-            setAuthenticated(true)
-          } 
-        } catch (error) {
-          
+      const access_token = await SecureStore.getItemAsync("access_token");
+      if (access_token != null) {
+        console.log("Access token found.");
+        const refresh_token = await SecureStore.getItemAsync("refresh_token");
+        if (refresh_token != null) {
+          console.log("Refresh token found.");
+          const isTokenExpired = await checkToken(access_token);
+          if (!isTokenExpired?.data.result) {
+            console.log("Token still valid. Beginning user data request.")
+            const userData = await getMe(access_token);
+            if (userData.status >= 200 && userData.status <= 299) {
+              const user: User = userData.data;
+              console.log(user);
+              setUser(user);
+              setAuthenticated(true);
+            } else {
+              console.error(userData.statusText);
+            }
+          } else {
+            console.log("Access token expired. Beginning refresh.");
+
+          }
+        } else {
+          console.log("No refresh token found.");
         }
-        
+      } else {
+        console.log("No access token found.")
       }
     }
     checkStoredToken()

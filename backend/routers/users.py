@@ -53,20 +53,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    access_token = create_access_token(
-        data={"sub": str(db_user.id), "username": db_user.username}
-    )
-    refresh_token = create_refresh_token(
-        data={"sub": str(db_user.id), "username": db_user.username}
-    )
-    link_refresh_token_to_user(db, db_user.id, refresh_token)
     return {
-        "user_id": db_user.id,
-        "username": db_user.username,
-        "email": db_user.email,
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": TOKEN_TYPE,
         "message": "User registered successfully",
     }
 
@@ -77,9 +64,9 @@ def login_user(
 ):
     db_user = db.query(User).filter(User.email == user_login.username).first()
     if db_user is None:
-        raise HTTPException(status_code=400, detail="Invalid user")
+        raise HTTPException(status_code=400, detail="User doesn't exist.")
     elif not verify_password(user_login.password, db_user.password):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
+        raise HTTPException(status_code=400, detail="Invalid credentials.")
 
     access_token = create_access_token(
         data={"sub": str(db_user.id), "username": db_user.username}

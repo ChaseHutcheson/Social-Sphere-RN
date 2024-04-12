@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { API_URL } from "@/src/constants/Config";
 import validateEmail from "@/src/utils/ValidateEmail";
 const querystring = require("query-string")
@@ -9,37 +9,30 @@ export interface UpdateUserSchema {
   password?: string;
 }
 
-export const signIn = async (email: string, password: string) => {
+export const signIn = async (
+  email: string,
+  password: string
+): Promise<AxiosResponse<any>> => {
   const isEmailValid = validateEmail(email);
   if (isEmailValid) {
     try {
-      console.log("Running request")
-      console.log(`${API_URL}/users/login`, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        username: email,
-        password: password,
-      });
-      const params = new URLSearchParams()
-      params.append('username', email)
-      params.append('password', password)
+      const params = new URLSearchParams();
+      params.append("username", email);
+      params.append("password", password);
       const response = await axios.post(`${API_URL}/users/login`, params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
-      console.log("Response Successful!");
-      console.log(response.data)
-      return response.data;
+      return response;
     } catch (error) {
       console.error(error);
-      return error;
+      return Promise.reject(error);
     }
   } else {
     const errorMsg = { Error: "Email isn't valid." };
-    console.log(errorMsg);
-    return errorMsg;
+    console.error(errorMsg);
+    return Promise.reject(new Error("Email isn't valid."));
   }
 };
 
@@ -47,7 +40,7 @@ export const signUp = async (
   username: string,
   email: string,
   password: string
-) => {
+): Promise<AxiosResponse<any>> => {
   const isEmailValid = validateEmail(email);
   if (isEmailValid) {
     try {
@@ -56,17 +49,15 @@ export const signUp = async (
         username: username,
         password: password,
       });
-      console.log("Response Successful!");
-      return response.data;
+      return response; // Return the full response object
     } catch (error) {
-      console.log(`${API_URL}/register`);
       console.error(error);
-      return error;
+      return Promise.reject(error); // Return a rejected promise with the error
     }
   } else {
     const errorMsg = { Error: "Email isn't valid." };
     console.log(errorMsg);
-    return errorMsg;
+    return Promise.reject(new Error("Email isn't valid."));
   }
 };
 
@@ -78,11 +69,9 @@ export const checkToken = async (
         headers: {"Authorization": `Bearer ${token}`}
       });
       console.log("Response Successful!");
-      return response.data.result;
+      return response;
     } catch (error) {
-      console.log(`${API_URL}/register`);
       console.error(error);
-      return error;
     }
 };
 
@@ -96,7 +85,7 @@ export const updateProfile = async (id: number, update: UpdateUserSchema) => {
   try {
     const response = await axios.patch(`${API_URL}/users/me/update`, update);
     console.log("Profile update successful!");
-    return response.data;
+    return response;
   } catch (error) {
     console.error(error);
     return error;

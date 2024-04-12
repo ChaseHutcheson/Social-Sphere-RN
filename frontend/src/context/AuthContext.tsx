@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "../constants/Types";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
 import { getMe } from "@/src/api/users";
 import { signIn, signUp } from "@/src/api/auth";
@@ -43,29 +43,42 @@ export const AuthProvider = ({ children }: any) => {
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (authToken) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [authToken]);
-
   const contextSignIn = async (email: string, password: string) => {
     setLoading(true);
     try {
       const tokens = await signIn(email, password);
-      console.log(tokens);
-      const user: User = await getMe(tokens.access_token);
+      const userData = await getMe(tokens.data.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      await SecureStore.setItemAsync(
+        "refresh_token",
+        tokens.data.refresh_token
+      );
 
-      await SecureStore.setItemAsync("access_token", tokens.access_token);      
-
+      let user: User = userData.data;
       setUser(user);
-      setAuthToken(tokens.access_token);
+      setAuthToken(tokens.data.access_token);
       setAuthenticated(true);
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          console.error(
+            "Request failed with status code:",
+            error.response.status,
+            "and detail message:",
+            error.response.data.detail
+          );
+          return error.response.data.detail;
+        } else {
+          console.error("An error occurred:", error.message);
+          return error.message;
+        }
+      } else {
+        console.error("An error occurred:", error);
+        return error;
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -77,18 +90,35 @@ export const AuthProvider = ({ children }: any) => {
     setLoading(true);
     try {
       const tokens = await signUp(username, email, password);
-      console.log(tokens);
-      console.log(tokens.access_token);
-      const user: User = await getMe(tokens.access_token);
+      const user: User = (await getMe(tokens.data.access_token)).data;
 
-      await SecureStore.setItemAsync("access_token", tokens.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      await SecureStore.setItemAsync("refresh_token", tokens.data.refresh_token)
 
       setUser(user);
-      setAuthToken(tokens.access_token);
+      setAuthToken(tokens.data.access_token);
       setAuthenticated(true);
       setLoading(false);
     } catch (error) {
-      console.error(error);
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          console.error(
+            "Request failed with status code:",
+            error.response.status,
+            "and detail message:",
+            error.response.data.detail
+          );
+          return error.response.data.detail
+        } else {
+          console.error("An error occurred:", error.message);
+          return error.message
+        }
+      } else {
+        console.error("An error occurred:", error);
+        return error
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
