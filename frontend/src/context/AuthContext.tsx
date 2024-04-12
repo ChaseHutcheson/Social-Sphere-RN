@@ -10,8 +10,8 @@ interface IAuthContext {
   authToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (data: User) => void,
-  setAuthenticated: (state: boolean) => void,
+  setUser: (data: User) => void;
+  setAuthenticated: (state: boolean) => void;
   contextSignIn: (email: string, password: string) => Promise<void>;
   contextSignUp: (
     username: string,
@@ -25,12 +25,8 @@ const AuthContext = createContext<IAuthContext>({
   authToken: null,
   isAuthenticated: false,
   isLoading: false,
-  setUser(data) {
-    
-  },
-  setAuthenticated(state) {
-    
-  },
+  setUser(data) {},
+  setAuthenticated(state) {},
   contextSignIn: async () => {},
   contextSignUp: async () => {},
 });
@@ -55,6 +51,11 @@ export const AuthProvider = ({ children }: any) => {
       );
 
       let user: User = userData.data;
+      console.log(tokens);
+      const user: User = await getMe(tokens.access_token);
+
+      await SecureStore.setItemAsync("access_token", tokens.access_token);
+
       setUser(user);
       setAuthToken(tokens.data.access_token);
       setAuthenticated(true);

@@ -43,9 +43,8 @@ export default function App() {
         console.log("No access token found.")
       }
     }
-    checkStoredToken()
-  }, [])
-  
+    checkStoredToken();
+  }, []);
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;

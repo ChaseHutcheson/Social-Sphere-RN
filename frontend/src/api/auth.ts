@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { API_URL } from "@/src/constants/Config";
 import validateEmail from "@/src/utils/ValidateEmail";
-const querystring = require("query-string")
+const querystring = require("query-string");
 
 export interface UpdateUserSchema {
   email?: string;
