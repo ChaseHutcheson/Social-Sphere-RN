@@ -51,10 +51,6 @@ export const AuthProvider = ({ children }: any) => {
       );
 
       let user: User = userData.data;
-      console.log(tokens);
-      const user: User = await getMe(tokens.access_token);
-
-      await SecureStore.setItemAsync("access_token", tokens.access_token);
 
       setUser(user);
       setAuthToken(tokens.data.access_token);
