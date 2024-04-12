@@ -15,26 +15,23 @@ export default function App() {
   useEffect(() => {
     async function checkStoredToken() {
       const token = await SecureStore.getItemAsync("access_token");
-      console.log(token)
+      console.log(token);
       if (token != null) {
         try {
           const response = await checkToken(token);
-          console.log(response)
-          if (!response.result) {
-            const user: User = await getMe(token)
-            console.log(user)
-            setUser(user)
-            setAuthenticated(true)
-          } 
-        } catch (error) {
-          
-        }
-        
+          if (!response) {
+            const user: User = await getMe(token);
+            console.log(user);
+            setUser(user);
+            setAuthenticated(true);
+          } else {
+            console.log("Token Expired");
+          }
+        } catch (error) {}
       }
     }
-    checkStoredToken()
-  }, [])
-  
+    checkStoredToken();
+  }, []);
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;

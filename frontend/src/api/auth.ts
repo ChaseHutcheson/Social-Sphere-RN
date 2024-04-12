@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_URL } from "@/src/constants/Config";
 import validateEmail from "@/src/utils/ValidateEmail";
-const querystring = require("query-string")
+const querystring = require("query-string");
 
 export interface UpdateUserSchema {
   email?: string;
@@ -13,24 +13,19 @@ export const signIn = async (email: string, password: string) => {
   const isEmailValid = validateEmail(email);
   if (isEmailValid) {
     try {
-      console.log("Running request")
-      console.log(`${API_URL}/users/login`, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        username: email,
-        password: password,
-      });
-      const params = new URLSearchParams()
-      params.append('username', email)
-      params.append('password', password)
+      console.log("Running request");
+      console.log(`Params Recieved. Email: ${email}, Password: ${password}`);
+      const params = new URLSearchParams();
+      params.append("username", email);
+      params.append("password", password);
+      console.log(`Url Params created: ${params}`);
       const response = await axios.post(`${API_URL}/users/login`, params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
       console.log("Response Successful!");
-      console.log(response.data)
+      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -56,10 +51,9 @@ export const signUp = async (
         username: username,
         password: password,
       });
-      console.log("Response Successful!");
+      console.log("Token Check Successful!");
       return response.data;
     } catch (error) {
-      console.log(`${API_URL}/register`);
       console.error(error);
       return error;
     }
@@ -70,20 +64,18 @@ export const signUp = async (
   }
 };
 
-export const checkToken = async (
-  token: string,
-) => {
-    try {
-      const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
-        headers: {"Authorization": `Bearer ${token}`}
-      });
-      console.log("Response Successful!");
-      return response.data.result;
-    } catch (error) {
-      console.log(`${API_URL}/register`);
-      console.error(error);
-      return error;
-    }
+export const checkToken = async (token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Response Successful!");
+    return response.data.result;
+  } catch (error) {
+    console.log(`${API_URL}/register`);
+    console.error(error);
+    return error;
+  }
 };
 
 export const forgotPassword = async (email: string) => {

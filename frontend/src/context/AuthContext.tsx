@@ -10,8 +10,8 @@ interface IAuthContext {
   authToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (data: User) => void,
-  setAuthenticated: (state: boolean) => void,
+  setUser: (data: User) => void;
+  setAuthenticated: (state: boolean) => void;
   contextSignIn: (email: string, password: string) => Promise<void>;
   contextSignUp: (
     username: string,
@@ -25,12 +25,8 @@ const AuthContext = createContext<IAuthContext>({
   authToken: null,
   isAuthenticated: false,
   isLoading: false,
-  setUser(data) {
-    
-  },
-  setAuthenticated(state) {
-    
-  },
+  setUser(data) {},
+  setAuthenticated(state) {},
   contextSignIn: async () => {},
   contextSignUp: async () => {},
 });
@@ -43,14 +39,6 @@ export const AuthProvider = ({ children }: any) => {
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (authToken) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [authToken]);
-
   const contextSignIn = async (email: string, password: string) => {
     setLoading(true);
     try {
@@ -58,7 +46,7 @@ export const AuthProvider = ({ children }: any) => {
       console.log(tokens);
       const user: User = await getMe(tokens.access_token);
 
-      await SecureStore.setItemAsync("access_token", tokens.access_token);      
+      await SecureStore.setItemAsync("access_token", tokens.access_token);
 
       setUser(user);
       setAuthToken(tokens.access_token);
