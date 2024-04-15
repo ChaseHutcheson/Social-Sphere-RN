@@ -71,6 +71,7 @@ def login_user(
     access_token = create_access_token(
         data={"sub": str(db_user.id), "username": db_user.username}
     )
+    print(access_token)
     refresh_token = get_users_refresh_token(db, db_user.id)
 
     if refresh_token:

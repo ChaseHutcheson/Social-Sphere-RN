@@ -19,3 +19,17 @@ export type SignUpData = {
   address: string | null | undefined;
   date_of_birth: string | null | undefined;
 };
+
+export type Event = {
+  post_id: number;
+  user_id: number;
+  user_name: string;
+  title: string;
+  content: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  created_at: string;
+  attendees: number;
+  deadline: string;
+};
