@@ -24,7 +24,7 @@ const SignUpScreenOne = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { contextSignUp, isAuthenticated } = useAuth();
+  const { setSignUpData, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -93,6 +93,15 @@ const SignUpScreenOne = () => {
           textColor="#fff"
           onPress={() => {
             router.push("/(auth)/sign-up/sign-up-2");
+            setSignUpData({
+              username: username,
+              email: email,
+              password: password,
+              first_name: null,
+              last_name: null,
+              date_of_birth: null,
+              address: null,
+            });
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>

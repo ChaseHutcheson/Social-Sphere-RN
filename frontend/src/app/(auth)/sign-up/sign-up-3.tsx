@@ -19,12 +19,12 @@ import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
+import * as SecureStore from "expo-secure-store";
 
 const SignUpScreenThree = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { contextSignUp, isAuthenticated } = useAuth();
+  const [address, setAddress] = useState("");
+  const { signUpData, setSignUpData, contextSignUp, isAuthenticated } =
+    useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -57,7 +57,7 @@ const SignUpScreenThree = () => {
               style={styles.textInput}
               placeholder="123 Main Street"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setPassword(e)}
+              onChangeText={(e) => setAddress(e)}
             />
           </View>
         </View>
@@ -66,7 +66,24 @@ const SignUpScreenThree = () => {
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
-            router.push("/(auth)/sign-up/sign-up-3");
+            setSignUpData({
+              first_name: signUpData?.first_name,
+              last_name: signUpData?.last_name,
+              username: signUpData?.username,
+              email: signUpData?.email,
+              password: signUpData?.password,
+              address: address,
+              date_of_birth: signUpData?.date_of_birth,
+            });
+            contextSignUp(
+              signUpData?.first_name!,
+              signUpData?.last_name!,
+              signUpData?.username!,
+              signUpData?.email!,
+              signUpData?.password!,
+              signUpData?.address!,
+              signUpData?.date_of_birth!
+            );
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>

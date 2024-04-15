@@ -188,7 +188,7 @@ def get_events_in_area(
 
 @event_router.get("/newest-events")
 def get_newest_events(
-    db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
+    page: int, db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -197,9 +197,21 @@ def get_newest_events(
     )
     if verify_token(access_token):
         try:
-            events_as_dict = []
+            # Define the number of events per page
+            per_page = 10
 
-            for event in db.query(Post).order_by(desc(Post.created_at)).all():
+            # Calculate the offset based on the page number
+            offset = (page - 1) * per_page
+
+            # Query the database, ordering by the post ID in descending order
+            # and using offset and limit to paginate the results
+            events_query = (
+                db.query(Post).order_by(desc(Post.id)).offset(offset).limit(per_page)
+            )
+
+            # Convert the query results to a list of dictionaries
+            events_as_dict = []
+            for event in events_query:
                 events_as_dict.append(
                     {
                         "post_id": event.id,
@@ -217,6 +229,7 @@ def get_newest_events(
                 )
 
             return events_as_dict
+
         except Exception as e:
             raise HTTPException(
                 status_code=500, detail=f"Internal Server Error: {str(e)}"

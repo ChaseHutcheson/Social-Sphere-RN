@@ -1,13 +1,31 @@
 import { StyleSheet } from "react-native";
 import { Text, View } from "@/src/components/Themed";
 import { useAuth } from "@/src/context/AuthContext";
+import { useEffect, useState } from "react";
+import { getNewestEvents } from "@/src/api/events";
 
 export default function HomeScreen() {
-  const { user } = useAuth()
+  const { user, isAuthenticated, authToken } = useAuth();
+  const [newestEvents, setNewestEvents] = useState();
+  const page: number = 1;
+
+  useEffect(() => {
+    async function getNewestEventsEffect(page: number, token: string) {
+      if (isAuthenticated) {
+        try {
+          const eventsResponse = await getNewestEvents(page, token);
+          setNewestEvents(eventsResponse?.data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+    getNewestEventsEffect(page, authToken!);
+  }, [isAuthenticated]);
 
   return (
     <View style={styles.container}>
-      <Text>{user?.username}</Text>
+      <Text>{JSON.stringify(newestEvents)}</Text>
     </View>
   );
 }

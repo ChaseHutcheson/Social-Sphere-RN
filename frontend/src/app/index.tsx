@@ -10,7 +10,8 @@ import { getMe } from "../api/users";
 import { User } from "../constants/Types";
 
 export default function App() {
-  const { isAuthenticated, setUser, setAuthenticated } = useAuth();
+  const { isAuthenticated, setUser, setAuthenticated, setAuthToken } =
+    useAuth();
 
   useEffect(() => {
     async function checkStoredToken() {
@@ -22,25 +23,25 @@ export default function App() {
           console.log("Refresh token found.");
           const isTokenExpired = await checkToken(access_token);
           if (!isTokenExpired?.data.result) {
-            console.log("Token still valid. Beginning user data request.")
+            console.log("Token still valid. Beginning user data request.");
             const userData = await getMe(access_token);
             if (userData.status >= 200 && userData.status <= 299) {
               const user: User = userData.data;
               console.log(user);
               setUser(user);
               setAuthenticated(true);
+              setAuthToken(access_token);
             } else {
               console.error(userData.statusText);
             }
           } else {
             console.log("Access token expired. Beginning refresh.");
-
           }
         } else {
           console.log("No refresh token found.");
         }
       } else {
-        console.log("No access token found.")
+        console.log("No access token found.");
       }
     }
     checkStoredToken();

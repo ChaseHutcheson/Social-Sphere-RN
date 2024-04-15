@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { API_URL } from "@/src/constants/Config";
 import validateEmail from "@/src/utils/ValidateEmail";
+import { SignUpData } from "../constants/Types";
 const querystring = require("query-string");
 
 export interface UpdateUserSchema {
@@ -37,17 +38,41 @@ export const signIn = async (
 };
 
 export const signUp = async (
+  first_name: string,
+  last_name: string,
   username: string,
   email: string,
-  password: string
+  password: string,
+  address: string | null,
+  date_of_birth: string
 ): Promise<AxiosResponse<any>> => {
+  console.log(email);
   const isEmailValid = validateEmail(email);
+
+  function convertDateFormat(dateString: string) {
+    // Split the input date string by "/"
+    const [month, day, year] = dateString.split("/");
+
+    // Combine the year, month, and day in the format "yyyy-MM-dd"
+    const newDateString = `${year}-${month.padStart(2, "0")}-${day.padStart(
+      2,
+      "0"
+    )}`;
+
+    return newDateString;
+  }
+
   if (isEmailValid) {
     try {
+      console.log(convertDateFormat(date_of_birth));
       const response = await axios.post(`${API_URL}/users/register`, {
-        email: email,
+        first_name: first_name,
+        last_name: last_name,
         username: username,
+        email: email,
         password: password,
+        address: address,
+        date_of_birth: convertDateFormat(date_of_birth),
       });
       return response; // Return the full response object
     } catch (error) {
@@ -61,18 +86,16 @@ export const signUp = async (
   }
 };
 
-export const checkToken = async (
-  token: string,
-) => {
-    try {
-      const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
-        headers: {"Authorization": `Bearer ${token}`}
-      });
-      console.log("Response Successful!");
-      return response;
-    } catch (error) {
-      console.error(error);
-    }
+export const checkToken = async (token: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("Response Successful!");
+    return response;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const forgotPassword = async (email: string) => {

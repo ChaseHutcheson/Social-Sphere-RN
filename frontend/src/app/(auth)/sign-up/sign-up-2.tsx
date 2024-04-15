@@ -19,12 +19,13 @@ import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
+import * as SecureStore from "expo-secure-store";
 
 const SignUpScreenTwo = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { contextSignUp, isAuthenticated } = useAuth();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const { signUpData, setSignUpData, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -46,32 +47,32 @@ const SignUpScreenTwo = () => {
       >
         <Text style={styles.title}>Let us get to know you!</Text>
         <View style={styles.formContainer}>
+          <Text>{}</Text>
           <View style={styles.textInputContainer}>
             <Text style={styles.textInputLabel}>First Name</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Email"
+              placeholder="John"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setEmail(e)}
+              onChangeText={(e) => setFirstName(e)}
             />
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.textInputLabel}>Last Name</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Password"
+              placeholder="Doe"
               placeholderTextColor="#848484"
-              secureTextEntry={true}
-              onChangeText={(e) => setPassword(e)}
+              onChangeText={(e) => setLastName(e)}
             />
           </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.textInputLabel}>Birthday</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="01/01/1970"
+              placeholder="MM/dd/yyyy"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setPassword(e)}
+              onChangeText={(e) => setBirthday(e)}
             />
           </View>
         </View>
@@ -81,6 +82,15 @@ const SignUpScreenTwo = () => {
           textColor="#fff"
           onPress={() => {
             router.push("/(auth)/sign-up/sign-up-3");
+            setSignUpData({
+              first_name: firstName,
+              last_name: lastName,
+              username: signUpData?.username,
+              email: signUpData?.email,
+              password: signUpData?.password,
+              address: null,
+              date_of_birth: birthday,
+            });
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
