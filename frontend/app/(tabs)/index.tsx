@@ -11,34 +11,30 @@ export default function HomeScreen() {
   const { isAuthenticated, authToken } = useAuth();
   const [items, setItems] = useState<Event[]>([]);
   const [fetchLoading, setFetchLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(2);
 
   const fetchItems = async () => {
-    getNewestEvents(page, authToken!).then((response) => (setItems(response)))
-    console.log("Fetched Items")
+    await getNewestEvents(1, authToken!).then((response) => (setItems(response)))
+    setFetchLoading(false)
   }
 
-  const fetchMoreItems = async () => {
-    getNewestEvents(page, authToken!).then((response) => {
-      setItems([...items, response?.data]);
-      console.log(page);
-    });
-    console.log("Fetched Items");
-  };
+  const fetchMoreEvents = async () => {
+    setFetchLoading(true);
+    await setPage(page + 1);
+    await getNewestEvents(page, authToken!).then((response) => setItems([...items, ...response]));
+    setFetchLoading(false);
+  }
 
   useEffect(() => {
     fetchItems()
-    setTimeout(() => {
-      console.log(items);
-    }, 1000)
-  }, [page])
+  }, [])
 
 return (
   <SafeAreaView style={{ backgroundColor: "black", flex: 1 }}>
     {fetchLoading ? (
       <ActivityIndicator />
-    ) : items.length === 0 ? ( // Check if the items array is empty
-      <Text>No events found</Text> // Show a placeholder message
+    ) : items.length === 0 ? (
+      <Text>No events found</Text>
     ) : (
       <FlatList
         data={items}
@@ -48,9 +44,9 @@ return (
           alignItems: "center",
           justifyContent: "center",
         }}
-        onEndReached={() => {
-          setPage(page + 1);
-          fetchMoreItems();
+        onEndReached={async () => {
+          await setPage(page + 1)
+          await fetchMoreEvents()
         }}
         onEndReachedThreshold={0.1}
       />

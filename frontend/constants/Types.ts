@@ -21,7 +21,7 @@ export type SignUpData = {
 };
 
 export type Event = {
-  post_id: number;
+  post_id: string;
   user_id: number;
   user_name: string;
   title: string;

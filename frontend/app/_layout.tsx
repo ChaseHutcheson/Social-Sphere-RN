@@ -26,9 +26,9 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    SpaceMono: require("../../assets/fonts/SpaceMono-Regular.ttf"),
-    Itim: require("../../assets/fonts/Itim-Regular.ttf"),
-    OpenSans: require("../../assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf"),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    Itim: require("../assets/fonts/Itim-Regular.ttf"),
+    OpenSans: require("../assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf"),
     ...FontAwesome.font,
   });
 
