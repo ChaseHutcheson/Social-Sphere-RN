@@ -8,8 +8,8 @@ import { useFonts } from "expo-font";
 import { Slot, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { useColorScheme } from "@/src/components/useColorScheme";
-import { AuthProvider } from "@/src/context/AuthContext";
+import { useColorScheme } from "@/components/useColorScheme";
+import { AuthProvider } from "@/context/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.

@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import { API_URL } from "@/src/constants/Config";
-import validateEmail from "@/src/utils/ValidateEmail";
+import { API_URL } from "@/constants/Config";
+import validateEmail from "@/utils/ValidateEmail";
 import { SignUpData } from "../constants/Types";
 const querystring = require("query-string");
 

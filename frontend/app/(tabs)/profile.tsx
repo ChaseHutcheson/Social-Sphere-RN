@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
-import { Text, View } from "@/src/components/Themed";
+import { Text, View } from "@/components/Themed";
 
-export default function AttendingScreen() {
+export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <Text>AttendingScreen</Text>
+      <Text>ProfileScreen</Text>
     </View>
   );
 }

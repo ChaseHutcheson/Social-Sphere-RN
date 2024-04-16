@@ -11,20 +11,20 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
+import * as SecureStore from "expo-secure-store";
 
-const SignUpScreenOne = () => {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { setSignUpData, isAuthenticated } = useAuth();
+const SignUpScreenThree = () => {
+  const [address, setAddress] = useState("");
+  const { signUpData, setSignUpData, contextSignUp, isAuthenticated } =
+    useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -45,63 +45,45 @@ const SignUpScreenOne = () => {
         }}
       >
         <Text style={styles.title}>
-          We'll need some information to get started.
+          Would you like to set your home address?
+        </Text>
+        <Text style={styles.underTitle}>
+          We will use your address as the default location when creating events.
         </Text>
         <View style={styles.formContainer}>
           <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Username</Text>
+            <Text style={styles.textInputLabel}>Address</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="JohnDoe1970"
+              placeholder="123 Main Street"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setUsername(e)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Email</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="JohnDoe1970@email.com"
-              placeholderTextColor="#848484"
-              onChangeText={(e) => setEmail(e)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Password</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="•••••••••••••••"
-              placeholderTextColor="#848484"
-              secureTextEntry={true}
-              onChangeText={(e) => setPassword(e)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Confirm Password</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="•••••••••••••••"
-              placeholderTextColor="#848484"
-              secureTextEntry={true}
-              onChangeText={(e) => setPassword(e)}
+              onChangeText={(e) => setAddress(e)}
             />
           </View>
         </View>
         <Button
-          text="Continue"
+          text="Sign Up!"
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
-            router.push("/(auth)/sign-up/sign-up-2");
             setSignUpData({
-              username: username,
-              email: email,
-              password: password,
-              first_name: null,
-              last_name: null,
-              date_of_birth: null,
-              address: null,
+              first_name: signUpData?.first_name,
+              last_name: signUpData?.last_name,
+              username: signUpData?.username,
+              email: signUpData?.email,
+              password: signUpData?.password,
+              address: address,
+              date_of_birth: signUpData?.date_of_birth,
             });
+            contextSignUp(
+              signUpData?.first_name!,
+              signUpData?.last_name!,
+              signUpData?.username!,
+              signUpData?.email!,
+              signUpData?.password!,
+              signUpData?.address!,
+              signUpData?.date_of_birth!
+            );
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
@@ -113,7 +95,7 @@ const SignUpScreenOne = () => {
   );
 };
 
-export default SignUpScreenOne;
+export default SignUpScreenThree;
 
 const styles = StyleSheet.create({
   container: {
@@ -122,6 +104,14 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 75,
     fontSize: 28,
+    width: "90%",
+    fontFamily: "OpenSans",
+    textAlign: "center",
+    color: "#0059FF",
+  },
+  underTitle: {
+    marginTop: 35,
+    fontSize: 18,
     width: "90%",
     fontFamily: "OpenSans",
     textAlign: "center",
@@ -158,7 +148,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   textInputContainer: {
-    marginVertical: 10,
+    marginVertical: 50,
   },
   formContainer: {
     marginVertical: 20,

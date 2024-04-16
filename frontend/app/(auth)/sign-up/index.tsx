@@ -10,10 +10,10 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 
 const WelcomeScreen = () => {

@@ -11,21 +11,19 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
-import * as SecureStore from "expo-secure-store";
 
-const SignUpScreenTwo = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [birthday, setBirthday] = useState("");
-  const { signUpData, setSignUpData, isAuthenticated } = useAuth();
+const SignInScreen = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { contextSignIn, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -45,75 +43,62 @@ const SignUpScreenTwo = () => {
           justifyContent: "center",
         }}
       >
-        <Text style={styles.title}>Let us get to know you!</Text>
+        <Text style={styles.aboveTitle}>Welcome back to</Text>
+        <Text style={styles.title}>Social Sphere</Text>
         <View style={styles.formContainer}>
-          <Text>{}</Text>
           <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>First Name</Text>
+            <Text style={styles.textInputLabel}>Email</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="John"
+              placeholder="JohnDoe1970@email.com"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setFirstName(e)}
+              onChangeText={(e) => setEmail(e)}
             />
           </View>
           <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Last Name</Text>
+            <Text style={styles.textInputLabel}>Password</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Doe"
+              placeholder="•••••••••••••••"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setLastName(e)}
-            />
-          </View>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Birthday</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="MM/dd/yyyy"
-              placeholderTextColor="#848484"
-              onChangeText={(e) => setBirthday(e)}
+              secureTextEntry={true}
+              onChangeText={(e) => setPassword(e)}
             />
           </View>
         </View>
         <Button
-          text="Continue"
+          text="Sign In!"
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
-            router.push("/(auth)/sign-up/sign-up-3");
-            setSignUpData({
-              first_name: firstName,
-              last_name: lastName,
-              username: signUpData?.username,
-              email: signUpData?.email,
-              password: signUpData?.password,
-              address: null,
-              date_of_birth: birthday,
-            });
+            contextSignIn(email, password);
           }}
         ></Button>
-        <Text style={styles.loginButtonLabel}>Already have an account?</Text>
-        <Link href="/(auth)/sign-in">
-          <Text style={styles.textButton}>Login!</Text>
+        <Text style={styles.loginButtonLabel}>Don't have an account?</Text>
+        <Link href="/(auth)/sign-up/">
+          <Text style={styles.textButton}>Sign Up!</Text>
         </Link>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
 
-export default SignUpScreenTwo;
+export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  title: {
-    marginTop: 75,
-    fontSize: 28,
-    width: "90%",
+  aboveTitle: {
+    marginTop: 100,
+    fontSize: 30,
     fontFamily: "OpenSans",
-    textAlign: "center",
+    marginBottom: -10,
+    color: "#0059FF",
+  },
+  title: {
+    fontSize: 50,
+    fontFamily: "Itim",
     color: "#0059FF",
   },
   loginButtonLabel: {

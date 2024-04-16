@@ -11,19 +11,20 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
 
-const SignInScreen = () => {
+const SignUpScreenOne = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { contextSignIn, isAuthenticated } = useAuth();
+  const { setSignUpData, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -43,9 +44,19 @@ const SignInScreen = () => {
           justifyContent: "center",
         }}
       >
-        <Text style={styles.aboveTitle}>Welcome back to</Text>
-        <Text style={styles.title}>Social Sphere</Text>
+        <Text style={styles.title}>
+          We'll need some information to get started.
+        </Text>
         <View style={styles.formContainer}>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Username</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="JohnDoe1970"
+              placeholderTextColor="#848484"
+              onChangeText={(e) => setUsername(e)}
+            />
+          </View>
           <View style={styles.textInputContainer}>
             <Text style={styles.textInputLabel}>Email</Text>
             <TextInput
@@ -65,40 +76,55 @@ const SignInScreen = () => {
               onChangeText={(e) => setPassword(e)}
             />
           </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Confirm Password</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="•••••••••••••••"
+              placeholderTextColor="#848484"
+              secureTextEntry={true}
+              onChangeText={(e) => setPassword(e)}
+            />
+          </View>
         </View>
         <Button
-          text="Sign In!"
+          text="Continue"
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
-            contextSignIn(email, password);
+            router.push("/(auth)/sign-up/sign-up-2");
+            setSignUpData({
+              username: username,
+              email: email,
+              password: password,
+              first_name: null,
+              last_name: null,
+              date_of_birth: null,
+              address: null,
+            });
           }}
         ></Button>
-        <Text style={styles.loginButtonLabel}>Don't have an account?</Text>
-        <Link href="/(auth)/sign-up/">
-          <Text style={styles.textButton}>Sign Up!</Text>
+        <Text style={styles.loginButtonLabel}>Already have an account?</Text>
+        <Link href="/(auth)/sign-in">
+          <Text style={styles.textButton}>Login!</Text>
         </Link>
       </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
 
-export default SignInScreen;
+export default SignUpScreenOne;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  aboveTitle: {
-    marginTop: 100,
-    fontSize: 30,
-    fontFamily: "OpenSans",
-    marginBottom: -10,
-    color: "#0059FF",
-  },
   title: {
-    fontSize: 50,
-    fontFamily: "Itim",
+    marginTop: 75,
+    fontSize: 28,
+    width: "90%",
+    fontFamily: "OpenSans",
+    textAlign: "center",
     color: "#0059FF",
   },
   loginButtonLabel: {
@@ -132,7 +158,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   textInputContainer: {
-    marginVertical: 20,
+    marginVertical: 10,
   },
   formContainer: {
     marginVertical: 20,

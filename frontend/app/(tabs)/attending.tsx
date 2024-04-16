@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
-import { Text, View } from "@/src/components/Themed";
+import { Text, View } from "@/components/Themed";
 
-export default function CreateScreen() {
+export default function AttendingScreen() {
   return (
     <View style={styles.container}>
-      <Text>CreateScreen</Text>
+      <Text>AttendingScreen</Text>
     </View>
   );
 }

@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosError, AxiosResponse } from "axios";
-import { API_URL } from "@/src/constants/Config";
+import { API_URL } from "@/constants/Config";
 
 export const getMe = async (access_token: string): Promise<AxiosResponse<any>> => {
   const response = await axios

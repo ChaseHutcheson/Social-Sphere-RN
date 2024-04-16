@@ -20,7 +20,7 @@ const EventListItem = ({ item }: EventListItemProps) => {
       }}
     >
       <Text style={{ color: "white" }}>{item.title}</Text>
-      <Text style={{ color: "white" }}>{item.content}</Text>
+      <Text style={{ color: "white" }}>Hello</Text>
       <Text style={{ color: "white" }}>{item.post_id}</Text>
     </View>
   );

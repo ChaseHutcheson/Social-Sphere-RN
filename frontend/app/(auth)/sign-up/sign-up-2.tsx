@@ -11,20 +11,21 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
 import * as SecureStore from "expo-secure-store";
 
-const SignUpScreenThree = () => {
-  const [address, setAddress] = useState("");
-  const { signUpData, setSignUpData, contextSignUp, isAuthenticated } =
-    useAuth();
+const SignUpScreenTwo = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [birthday, setBirthday] = useState("");
+  const { signUpData, setSignUpData, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -44,46 +45,52 @@ const SignUpScreenThree = () => {
           justifyContent: "center",
         }}
       >
-        <Text style={styles.title}>
-          Would you like to set your home address?
-        </Text>
-        <Text style={styles.underTitle}>
-          We will use your address as the default location when creating events.
-        </Text>
+        <Text style={styles.title}>Let us get to know you!</Text>
         <View style={styles.formContainer}>
+          <Text>{}</Text>
           <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Address</Text>
+            <Text style={styles.textInputLabel}>First Name</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="123 Main Street"
+              placeholder="John"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setAddress(e)}
+              onChangeText={(e) => setFirstName(e)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Last Name</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Doe"
+              placeholderTextColor="#848484"
+              onChangeText={(e) => setLastName(e)}
+            />
+          </View>
+          <View style={styles.textInputContainer}>
+            <Text style={styles.textInputLabel}>Birthday</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="MM/dd/yyyy"
+              placeholderTextColor="#848484"
+              onChangeText={(e) => setBirthday(e)}
             />
           </View>
         </View>
         <Button
-          text="Sign Up!"
+          text="Continue"
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
+            router.push("/(auth)/sign-up/sign-up-3");
             setSignUpData({
-              first_name: signUpData?.first_name,
-              last_name: signUpData?.last_name,
+              first_name: firstName,
+              last_name: lastName,
               username: signUpData?.username,
               email: signUpData?.email,
               password: signUpData?.password,
-              address: address,
-              date_of_birth: signUpData?.date_of_birth,
+              address: null,
+              date_of_birth: birthday,
             });
-            contextSignUp(
-              signUpData?.first_name!,
-              signUpData?.last_name!,
-              signUpData?.username!,
-              signUpData?.email!,
-              signUpData?.password!,
-              signUpData?.address!,
-              signUpData?.date_of_birth!
-            );
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
@@ -95,7 +102,7 @@ const SignUpScreenThree = () => {
   );
 };
 
-export default SignUpScreenThree;
+export default SignUpScreenTwo;
 
 const styles = StyleSheet.create({
   container: {
@@ -104,14 +111,6 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 75,
     fontSize: 28,
-    width: "90%",
-    fontFamily: "OpenSans",
-    textAlign: "center",
-    color: "#0059FF",
-  },
-  underTitle: {
-    marginTop: 35,
-    fontSize: 18,
     width: "90%",
     fontFamily: "OpenSans",
     textAlign: "center",
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   textInputContainer: {
-    marginVertical: 50,
+    marginVertical: 20,
   },
   formContainer: {
     marginVertical: 20,

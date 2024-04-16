@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
-import { Text, View } from "@/src/components/Themed";
+import { Text, View } from "@/components/Themed";
 
-export default function ProfileScreen() {
+export default function SearchScreen() {
   return (
     <View style={styles.container}>
-      <Text>ProfileScreen</Text>
+      <Text>SearchScreen</Text>
     </View>
   );
 }

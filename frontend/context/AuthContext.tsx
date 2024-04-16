@@ -2,8 +2,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { SignUpData, User } from "../constants/Types";
 import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
-import { getMe } from "@/src/api/users";
-import { signIn, signUp } from "@/src/api/auth";
+import { getMe } from "@/api/users";
+import { signIn, signUp } from "@/api/auth";
 
 interface IAuthContext {
   user: User | null;

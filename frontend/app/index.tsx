@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import React, { useEffect } from "react";
-import { useAuth } from "@/src/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect, router } from "expo-router";
-import Button from "@/src/components/CustomButton";
+import Button from "@/components/CustomButton";
 import { useFonts } from "expo-font";
 import * as SecureStore from "expo-secure-store";
 import { checkToken } from "../api/auth";
