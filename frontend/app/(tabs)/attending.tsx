@@ -1,11 +1,66 @@
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 import { Text, View } from "@/components/Themed";
+import { SafeAreaView } from "react-native-safe-area-context";
+import EventListItem from "@/components/EventListItem";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { getAttendingEvents } from "@/api/events";
+import { Event } from "@/constants/Types";
 
 export default function AttendingScreen() {
+  const { isAuthenticated, authToken } = useAuth();
+  const [items, setItems] = useState<Event[]>([]);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchItems = async () => {
+    setFetchLoading(true);
+    const response = await getAttendingEvents(authToken!);
+    setItems(response);
+    setHasMore(response.length > 0);
+    setFetchLoading(false);
+  };
+
+  useEffect(() => {
+    fetchItems();
+  }, [page]);
+
   return (
-    <View style={styles.container}>
-      <Text>AttendingScreen</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ textAlign: "center", fontSize: 30, fontWeight: "700" }}>
+          Attending Events
+        </Text>
+        <View
+          style={{
+            alignSelf: "center",
+            borderBottomColor: "black",
+            marginBottom: 15,
+            width: 350,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+        <View style={{ flex: 1 }}>
+          {fetchLoading && items.length === 0 ? (
+            <ActivityIndicator />
+          ) : items.length === 0 ? (
+            <Text>No events found</Text>
+          ) : (
+            <FlatList
+              data={items}
+              renderItem={({ item }) => <EventListItem item={item} />}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={{
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            />
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 

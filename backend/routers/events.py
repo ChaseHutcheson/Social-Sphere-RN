@@ -8,7 +8,7 @@ from app.models import User, Post, user_post_association
 from app.schema import PostCreate
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
 from datetime import datetime
 from app.settings import Settings
 from app.helper_funcs import (
@@ -135,13 +135,16 @@ def get_attending_events(
         attending_events_list = [
             {
                 "post_id": event.id,
+                "user_id": event.user_id,
+                "user_name": event.username,
                 "title": event.title,
                 "content": event.content,
                 "address": event.address,
+                "latitude": event.latitude,
+                "longitude": event.longitude,
                 "created_at": event.created_at,
-                "attendees": [
-                    attendee.id for attendee in event.attendees
-                ],  # Convert relationship to list
+                "attendees": [attendee.id for attendee in event.attendees],
+                "deadline": event.deadline,  # Convert relationship to list
             }
             for event in attending_events
         ]
@@ -223,7 +226,60 @@ def get_newest_events(
                         "latitude": event.latitude,
                         "longitude": event.longitude,
                         "created_at": event.created_at,
-                        "attendees": event.attendee_count,
+                        "attendees": [attendee.id for attendee in event.attendees],
+                        "deadline": event.deadline,
+                    }
+                )
+
+            return events_as_dict
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Internal Server Error: {str(e)}"
+            )
+    else:
+        raise credentials_exception
+
+
+@event_router.get("/search-events")
+def get_search_events(
+    query: str, db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if verify_token(access_token):
+        try:
+            # Define the number of events per page
+            events_query = (
+                db.query(Post)
+                .filter(
+                    or_(
+                        Post.title.ilike(f"%{query}%"),
+                        Post.user.has(User.username.ilike(f"%{query}%")),
+                    )
+                )
+                .order_by(desc(Post.id))
+                .all()
+            )
+
+            # Convert the query results to a list of dictionaries
+            events_as_dict = []
+            for event in events_query:
+                events_as_dict.append(
+                    {
+                        "post_id": event.id,
+                        "user_id": event.user_id,
+                        "user_name": event.username,
+                        "title": event.title,
+                        "content": event.content,
+                        "address": event.address,
+                        "latitude": event.latitude,
+                        "longitude": event.longitude,
+                        "created_at": event.created_at,
+                        "attendees": [attendee.id for attendee in event.attendees],
                         "deadline": event.deadline,
                     }
                 )

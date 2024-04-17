@@ -41,13 +41,21 @@ reset_codes = {}
 def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        exp = payload["exp"]
+        exp = payload.get("exp")
+
+        if exp is None:
+            raise HTTPException(
+                status_code=400, detail="Missing expiration time in token"
+            )
+
         if exp < math.floor(time()):
-            pass
+            return {"result": True}
         else:
             return {"result": False}
-    except jose.exceptions.ExpiredSignatureError:
+    except jwt.ExpiredSignatureError:
         return {"result": True}
+    except jwt.JWTError as e:
+        raise HTTPException(status_code=401, detail="Invalid token") from e
 
 
 @auth_router.post("/refresh-access-token")

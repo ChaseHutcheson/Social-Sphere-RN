@@ -21,9 +21,11 @@ export default function App() {
         const refresh_token = await SecureStore.getItemAsync("refresh_token");
         if (refresh_token != null) {
           console.log("Refresh token found.");
+          console.log(access_token);
           const isTokenExpired = await checkToken(access_token);
+          console.log(JSON.stringify(!isTokenExpired?.data));
           if (!isTokenExpired?.data.result) {
-            console.log("Token still valid. Beginning user data request.");
+            console.log("Is Token still valid:", isTokenExpired?.data.result);
             const userData = await getMe(access_token);
             if (userData.status >= 200 && userData.status <= 299) {
               const user: User = userData.data;

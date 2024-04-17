@@ -30,6 +30,13 @@ export type Event = {
   latitude: number;
   longitude: number;
   created_at: string;
-  attendees: number;
+  attendees: number[];
+  deadline: string;
+};
+
+export type EventCreate = {
+  title: string;
+  content: string;
+  address: string;
   deadline: string;
 };
