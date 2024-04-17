@@ -67,13 +67,13 @@ export default function EventListScreen() {
         <Text style={styles.postedBy}>Post ID: {parsedItem.post_id}</Text>
         {user?.id === parsedItem.user_id ? (
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Edit Event</Text>
+            <Text style={{ fontSize: 18 }}>Edit Event</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             onPress={() => attendEvent(parsedItem.post_id, authToken!)}
           >
-            <Text style={{ fontSize: 18, marginLeft: 10 }}>Attend Event</Text>
+            <Text style={{ fontSize: 18}}>Attend Event</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -14,8 +14,10 @@ import DateTimePicker, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { makeEvent } from "@/api/events";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "react-native-toast-notifications";
 
 export default function CreateScreen() {
+  const toast = useToast()
   const { authToken } = useAuth();
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -60,6 +62,12 @@ export default function CreateScreen() {
       console.log(authToken!);
     }
     makeEvent(eventData, authToken!);
+    toast.show("Task finished successfully", {
+      type: "normal",
+      placement: "top",
+      duration: 4000,
+      animationType: "slide-in",
+    });
   };
 
   return (

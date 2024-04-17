@@ -48,6 +48,7 @@ export default function SearchScreen() {
       />
       <FlatList
         data={results}
+        contentContainerStyle={{alignItems: "center"}}
         keyExtractor={(item: Event) => item.post_id.toString()}
         renderItem={({ item }) => <EventListItem item={item} />}
       />

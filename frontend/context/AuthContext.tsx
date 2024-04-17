@@ -11,10 +11,10 @@ interface IAuthContext {
   authToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setUser: (data: User) => void;
+  setUser: (data: User | null) => void;
   setAuthenticated: (state: boolean) => void;
-  setAuthToken: (state: string) => void;
-  setSignUpData: (data: SignUpData) => void;
+  setAuthToken: (state: string | null) => void;
+  setSignUpData: (data: SignUpData | null) => void;
   contextSignIn: (email: string, password: string) => Promise<void>;
   contextSignUp: (
     first_name: string,

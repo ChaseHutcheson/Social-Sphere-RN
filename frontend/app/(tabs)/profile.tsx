@@ -1,11 +1,14 @@
 import React from "react";
-import { StyleSheet, Text, Image } from "react-native";
+import { StyleSheet, Text, Image, TouchableOpacity } from "react-native";
 import { View } from "@/components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
+import { logOut } from "@/api/users";
+import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
+  const { user, authToken, setAuthToken, setAuthenticated, setUser } = useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,6 +50,20 @@ export default function ProfileScreen() {
               <Text style={styles.value}>{user?.verified_at}</Text>
             </>
           )}
+          <TouchableOpacity
+            onPress={() => {
+              logOut(authToken!)
+              SecureStore.deleteItemAsync("access_token");
+              SecureStore.deleteItemAsync("refresh_token");
+
+              setAuthToken(null);
+              setAuthenticated(false);
+              setUser(null);
+              router.replace("/");
+            }}
+          >
+            <Text style={{ fontSize: 18, marginLeft: 10 }}>Log Out</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
