@@ -49,12 +49,12 @@ export default function App() {
     checkStoredToken();
   }, []);
 
-  if (isAuthenticated) {
-    return <Redirect href="/(tabs)/" />;
-  }
 
-  const pic =
-    "https://cdn.discordapp.com/attachments/1196283193821761586/1226005913492787240/noun-cookie-6515787.png?ex=662331fb&is=6610bcfb&hm=7f6469b1debe2c78ed55c6e06dae97bb9d37d9668708a504fe9bee4accafc3e7&";
+  useEffect(() => {
+      if (isAuthenticated) {
+        return router.push("/(tabs)/")
+      }
+  })
 
   return (
     <View style={styles.container}>

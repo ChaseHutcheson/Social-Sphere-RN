@@ -2,7 +2,6 @@ import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewComponent,
   Platform,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -19,6 +18,7 @@ import {
   KeyboardAwareScrollView,
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
@@ -33,7 +33,7 @@ const SignInScreen = () => {
     <SafeAreaView
       style={{
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        flex: 1,
+        ...styles.container
       }}
     >
       <KeyboardAwareScrollView
@@ -88,6 +88,7 @@ export default SignInScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white'
   },
   aboveTitle: {
     marginTop: 100,

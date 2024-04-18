@@ -2,7 +2,6 @@ import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewComponent,
   Platform,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -12,19 +11,22 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useSignUpContext } from "@/context/SignUpContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
 import Button from "@/components/CustomButton";
 import {
   KeyboardAwareScrollView,
-  KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
+import { SignUpData } from "@/constants/Types";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SignUpScreenOne = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setSignUpData, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { setSignUpData } = useSignUpContext()
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -34,7 +36,7 @@ const SignUpScreenOne = () => {
     <SafeAreaView
       style={{
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        flex: 1,
+        ...styles.container,
       }}
     >
       <KeyboardAwareScrollView
@@ -93,14 +95,13 @@ const SignUpScreenOne = () => {
           textColor="#fff"
           onPress={() => {
             router.push("/(auth)/sign-up/sign-up-2");
-            setSignUpData({
-              username: username,
-              email: email,
-              password: password,
-              first_name: null,
-              last_name: null,
-              date_of_birth: null,
-              address: null,
+            setSignUpData((prevData) => {
+              return {
+                ...prevData,
+                username: username,
+                email: email,
+                password: password,
+              };
             });
           }}
         ></Button>
@@ -118,6 +119,7 @@ export default SignUpScreenOne;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   title: {
     marginTop: 75,
@@ -149,8 +151,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     width: 330,
     margin: 5,
-    backgroundColor: "#F3F3F3",
-    borderColor: "#F3F3F3",
+    backgroundColor: "#F5F5F5",
+    borderColor: "#F5F5F5",
   },
   textInputLabel: {
     fontFamily: "OpenSans",

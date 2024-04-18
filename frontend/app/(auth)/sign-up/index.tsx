@@ -1,7 +1,6 @@
 import {
   Animated,
   Platform,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -15,6 +14,7 @@ import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
 import Button from "@/components/CustomButton";
 import { FadeIn, FadeOut } from 'react-native-reanimated';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const WelcomeScreen = () => {
   const [opacity] = useState(new Animated.Value(0));
@@ -51,7 +51,7 @@ const WelcomeScreen = () => {
     <SafeAreaView
       style={{
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        flex: 1,
+        ...styles.container
       }}
     >
       <Animated.View style={{...styles.container, opacity: opacity}}>
@@ -67,6 +67,7 @@ export default WelcomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
     alignItems: "center",
     justifyContent: "center",
   },

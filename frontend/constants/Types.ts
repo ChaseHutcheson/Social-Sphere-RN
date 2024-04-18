@@ -11,13 +11,13 @@ export type User = {
 };
 
 export type SignUpData = {
-  first_name: string | null | undefined;
-  last_name: string | null | undefined;
-  username: string | null | undefined;
-  email: string | null | undefined;
-  password: string | null | undefined;
-  address: string | null | undefined;
-  date_of_birth: string | null | undefined;
+  first_name?: string | null | undefined;
+  last_name?: string | null | undefined;
+  username?: string | null | undefined;
+  email?: string | null | undefined;
+  password?: string | null | undefined;
+  address?: string | null | undefined;
+  date_of_birth?: string | null | undefined;
 };
 
 export type Event = {

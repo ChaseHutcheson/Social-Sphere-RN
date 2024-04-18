@@ -2,7 +2,6 @@ import {
   KeyboardAvoidingView,
   KeyboardAvoidingViewComponent,
   Platform,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -20,6 +19,7 @@ import {
   KeyboardAwareSectionList,
 } from "react-native-keyboard-aware-scroll-view";
 import * as SecureStore from "expo-secure-store";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const SignUpScreenThree = () => {
   const [address, setAddress] = useState("");
@@ -34,7 +34,7 @@ const SignUpScreenThree = () => {
     <SafeAreaView
       style={{
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        flex: 1,
+        ...styles.container
       }}
     >
       <KeyboardAwareScrollView
@@ -100,6 +100,7 @@ export default SignUpScreenThree;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   title: {
     marginTop: 75,
@@ -139,8 +140,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     width: 330,
     margin: 5,
-    backgroundColor: "#F3F3F3",
-    borderColor: "#F3F3F3",
+    backgroundColor: "#F5F5F5",
+    borderColor: "#F5F5F5",
   },
   textInputLabel: {
     fontFamily: "OpenSans",
