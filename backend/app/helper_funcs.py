@@ -115,7 +115,6 @@ def verify_token(token: str) -> bool:
         else:
             return False
     except JWTError as e:
-        print(f"JWTError: {e}")
         return False
 
 

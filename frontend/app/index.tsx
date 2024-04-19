@@ -18,9 +18,7 @@ export default function App() {
     async function authenticateUser() {
       try {
         const accessToken = await SecureStore.getItemAsync("access_token");
-        console.log("Access token:", accessToken);
         const refreshToken = await SecureStore.getItemAsync("refresh_token");
-        console.log("Refresh token:", refreshToken);
 
         if (!accessToken || !refreshToken) {
           console.log("No access token or refresh token found.");

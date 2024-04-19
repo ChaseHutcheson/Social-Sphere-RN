@@ -14,7 +14,7 @@ export const makeEvent = async (
   try {
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
-      const response = await axios.post(`${API_URL}/events/make-post`, body, {
+      const response = await axios.post(`${API_URL}/events`, body, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json", // Add this line for specifying JSON format
@@ -23,7 +23,7 @@ export const makeEvent = async (
       return response;
     } else {
       await refreshAccessToken(access_token, refresh_token);
-      const response = await axios.post(`${API_URL}/events/make-post`, body, {
+      const response = await axios.post(`${API_URL}/events`, body, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json", // Add this line for specifying JSON format
@@ -45,7 +45,7 @@ export const attendEvent = async (
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
       const response = await axios.post(
-        `${API_URL}/events/attend-event/${post_id}`,
+        `${API_URL}/events/${post_id}/attend`,
         {},
         {
           headers: {
@@ -58,7 +58,7 @@ export const attendEvent = async (
     } else {
       await refreshAccessToken(access_token, refresh_token);
       const response = await axios.post(
-        `${API_URL}/events/attend-event/${post_id}`,
+        `${API_URL}/events/${post_id}/attend`,
         {},
         {
           headers: {
@@ -82,25 +82,19 @@ export const getNewestEvents = async (
   try {
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
-      const response = await axios.get(
-        `${API_URL}/events/newest-events?page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}/events/?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       return response;
     } else {
       await refreshAccessToken(access_token, refresh_token);
-      const response = await axios.get(
-        `${API_URL}/events/newest-events?page=${page}`,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${API_URL}/events/?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       return response;
     }
   } catch (error) {
@@ -117,7 +111,7 @@ export const getFilteredEvents = async (
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
       const response = await axios.get(
-        `${API_URL}/events/search-events?query=${query}`,
+        `${API_URL}/events/search?query=${query}`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -128,7 +122,7 @@ export const getFilteredEvents = async (
     } else {
       await refreshAccessToken(access_token, refresh_token);
       const response = await axios.get(
-        `${API_URL}/events/search-events?query=${query}`,
+        `${API_URL}/events/search?query=${query}`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,
@@ -149,7 +143,7 @@ export const getAttendingEvents = async (
   try {
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
-      const response = await axios.get(`${API_URL}/events/attending-events`, {
+      const response = await axios.get(`${API_URL}/events/attending`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -157,7 +151,7 @@ export const getAttendingEvents = async (
       return response;
     } else {
       await refreshAccessToken(access_token, refresh_token);
-      const response = await axios.get(`${API_URL}/events/attending-events`, {
+      const response = await axios.get(`${API_URL}/events/attending`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
@@ -177,25 +171,19 @@ export const deleteEvent = async (
   try {
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
-      const response = await axios.delete(
-        `${API_URL}/events/delete-event/${post_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      );
+      const response = await axios.delete(`${API_URL}/events/${post_id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       return response.data;
     } else {
       await refreshAccessToken(access_token, refresh_token);
-      const response = await axios.delete(
-        `${API_URL}/events/delete-event/${post_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      );
+      const response = await axios.delete(`${API_URL}/events/${post_id}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
       return response.data;
     }
   } catch (error) {

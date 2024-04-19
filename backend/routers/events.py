@@ -34,7 +34,8 @@ reset_codes = {}
 event_router = APIRouter(prefix="/events")
 
 
-@event_router.post("/make-post")
+# CREATE
+@event_router.post("/")
 def make_post(
     post_data: PostCreate,
     db: Session = Depends(get_db),
@@ -105,91 +106,8 @@ def make_post(
         raise credentials_exception
 
 
-@event_router.get("/attending-events", response_model=list[dict])
-def get_attending_events(
-    db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
-):
-    """
-    Endpoint to get all events that the user is attending. Requires a valid token for authentication.
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    if verify_token(access_token):
-        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = data.get("sub")
-
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        db_user = db.query(User).filter(User.id == user_id).first()
-        if db_user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        attending_events = db_user.attending
-
-        # Convert the attending_events to a list of dictionaries
-        attending_events_list = [
-            {
-                "post_id": event.id,
-                "user_id": event.user_id,
-                "user_name": event.username,
-                "title": event.title,
-                "content": event.content,
-                "address": event.address,
-                "latitude": event.latitude,
-                "longitude": event.longitude,
-                "created_at": event.created_at,
-                "attendees": [attendee.id for attendee in event.attendees],
-                "deadline": event.deadline,  # Convert relationship to list
-            }
-            for event in attending_events
-        ]
-
-        return attending_events_list
-
-    else:
-        raise credentials_exception
-
-
-@event_router.get("/events-in-area")
-def get_events_in_area(
-    address: str = Depends(OAUTH_SCHEME),
-    radius: int = 50,
-    db: Session = Depends(get_db),
-    access_token: str = str,
-):
-    """
-    Endpoint to get events in a specific area from the database.
-    """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    # Call Google Maps Geocoding API to get coordinates from the address
-    coordinates = get_coordinates_from_address(address)
-
-    if not coordinates:
-        raise HTTPException(status_code=400, detail="Invalid address")
-
-    if verify_token(access_token):
-        # Get events from the database within the specified radius
-        events = get_events_from_database(
-            coordinates["lat"], coordinates["lng"], radius, db
-        )
-
-        return events
-
-    else:
-        raise credentials_exception
-
-
-@event_router.get("/newest-events")
+# READ
+@event_router.get("/")
 def get_newest_events(
     page: int, db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
 ):
@@ -241,7 +159,7 @@ def get_newest_events(
         raise credentials_exception
 
 
-@event_router.get("/search-events")
+@event_router.get("/search")
 def get_search_events(
     query: str, db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
 ):
@@ -294,7 +212,92 @@ def get_search_events(
         raise credentials_exception
 
 
-@event_router.post("/edit-event")
+@event_router.get("/attending", response_model=list[dict])
+def get_attending_events(
+    db: Session = Depends(get_db), access_token: str = Depends(OAUTH_SCHEME)
+):
+    """
+    Endpoint to get all events that the user is attending. Requires a valid token for authentication.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if verify_token(access_token):
+        data = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = data.get("sub")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        db_user = db.query(User).filter(User.id == user_id).first()
+        if db_user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        attending_events = db_user.attending
+
+        # Convert the attending_events to a list of dictionaries
+        attending_events_list = [
+            {
+                "post_id": event.id,
+                "user_id": event.user_id,
+                "user_name": event.username,
+                "title": event.title,
+                "content": event.content,
+                "address": event.address,
+                "latitude": event.latitude,
+                "longitude": event.longitude,
+                "created_at": event.created_at,
+                "attendees": [attendee.id for attendee in event.attendees],
+                "deadline": event.deadline,  # Convert relationship to list
+            }
+            for event in attending_events
+        ]
+
+        return attending_events_list
+
+    else:
+        raise credentials_exception
+
+
+@event_router.get("/area")
+def get_events_in_area(
+    address: str = Depends(OAUTH_SCHEME),
+    radius: int = 50,
+    db: Session = Depends(get_db),
+    access_token: str = str,
+):
+    """
+    Endpoint to get events in a specific area from the database.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # Call Google Maps Geocoding API to get coordinates from the address
+    coordinates = get_coordinates_from_address(address)
+
+    if not coordinates:
+        raise HTTPException(status_code=400, detail="Invalid address")
+
+    if verify_token(access_token):
+        # Get events from the database within the specified radius
+        events = get_events_from_database(
+            coordinates["lat"], coordinates["lng"], radius, db
+        )
+
+        return events
+
+    else:
+        raise credentials_exception
+
+
+# Update
+@event_router.put("/")
 def edit_event(
     post_data: PostCreate,
     post_id: str,
@@ -332,7 +335,7 @@ def edit_event(
         )
 
 
-@event_router.post("/attend-event/{post_id}")
+@event_router.post("/{post_id}/attend")
 def attend_event(
     post_id: str,
     access_token: str = Depends(OAUTH_SCHEME),
@@ -381,7 +384,7 @@ def attend_event(
         raise credentials_exception
 
 
-@event_router.post("/unattend-event/{post_id}")
+@event_router.post("/{post_id}/unattend")
 def unattend_event(
     post_id: int,
     db: Session = Depends(get_db),
@@ -430,7 +433,7 @@ def unattend_event(
         raise credentials_exception
 
 
-@event_router.delete("/delete-event/{post_id}")
+@event_router.delete("/{post_id}")
 def delete_event(
     post_id: str,
     access_token: str = Depends(OAUTH_SCHEME),
