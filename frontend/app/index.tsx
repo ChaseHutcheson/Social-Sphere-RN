@@ -5,56 +5,82 @@ import { Link, Redirect, router } from "expo-router";
 import Button from "@/components/CustomButton";
 import { useFonts } from "expo-font";
 import * as SecureStore from "expo-secure-store";
-import { checkToken } from "../api/auth";
 import { getMe } from "../api/users";
 import { User } from "../constants/Types";
+import { checkToken } from "@/utils/checkToken";
+import { refreshAccessToken } from "@/utils/refreshAccessToken";
 
 export default function App() {
   const { isAuthenticated, setUser, setAuthenticated, setAuthToken } =
     useAuth();
 
   useEffect(() => {
-    async function checkStoredToken() {
-      const access_token = await SecureStore.getItemAsync("access_token");
-      if (access_token != null) {
-        console.log("Access token found.");
-        const refresh_token = await SecureStore.getItemAsync("refresh_token");
-        if (refresh_token != null) {
-          console.log("Refresh token found.");
-          console.log(access_token);
-          const isTokenExpired = await checkToken(access_token);
-          console.log(JSON.stringify(!isTokenExpired?.data));
-          if (!isTokenExpired?.data.result) {
-            console.log("Is Token still valid:", isTokenExpired?.data.result);
-            const userData = await getMe(access_token);
-            if (userData.status >= 200 && userData.status <= 299) {
-              const user: User = userData.data;
-              console.log(user);
-              setUser(user);
-              setAuthenticated(true);
-              setAuthToken(access_token);
-            } else {
-              console.error(userData.statusText);
-            }
-          } else {
-            console.log("Access token expired. Beginning refresh.");
-          }
-        } else {
-          console.log("No refresh token found.");
+    async function authenticateUser() {
+      try {
+        const accessToken = await SecureStore.getItemAsync("access_token");
+        console.log("Access token:", accessToken);
+        const refreshToken = await SecureStore.getItemAsync("refresh_token");
+        console.log("Refresh token:", refreshToken);
+
+        if (!accessToken || !refreshToken) {
+          console.log("No access token or refresh token found.");
+          return;
         }
-      } else {
-        console.log("No access token found.");
+
+        console.log("Access token and refresh token found.");
+
+        // Check if the access token is expirede
+        const tokenResponse = await checkToken(accessToken);
+
+        const isTokenExpired = tokenResponse?.data.result;
+        console.log("Is token expired:", isTokenExpired);
+
+        if (isTokenExpired) {
+          console.log("Access token is expired. Refreshing...");
+
+          try {
+            const newAccessToken = await refreshAccessToken(
+              accessToken,
+              refreshToken
+            );
+
+            console.log("New access token:", newAccessToken);
+
+            if (newAccessToken) {
+              await SecureStore.setItemAsync("access_token", newAccessToken);
+              console.log("New access token stored successfully.");
+            } else {
+              console.log("Failed to refresh access token.");
+            }
+          } catch (error) {
+            console.error("Error refreshing access token:", error);
+          }
+        }
+
+        // Get user data
+        const userData = await getMe(accessToken);
+
+        if (userData.status >= 200 && userData.status <= 299) {
+          const user = userData.data;
+          setUser(user);
+          setAuthenticated(true);
+          setAuthToken(accessToken);
+        } else {
+          console.error("Failed to fetch user data:", userData.statusText);
+        }
+      } catch (error) {
+        console.error("Error during authentication:", error);
       }
     }
-    checkStoredToken();
+
+    authenticateUser();
   }, []);
 
-
   useEffect(() => {
-      if (isAuthenticated) {
-        return router.push("/(tabs)/")
-      }
-  })
+    if (isAuthenticated) {
+      return router.push("/(tabs)/");
+    }
+  });
 
   return (
     <View style={styles.container}>

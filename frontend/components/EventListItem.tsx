@@ -25,7 +25,7 @@ export default function EventListItem({ item }: EventListItemProps) {
 
         // Pass the serialized item as a parameter when navigating to EventListScreen
         router.push({
-          pathname: "/EventListScreen",
+          pathname: "/eventListingScreen",
           params: { item: serializedItem },
         });
       }}

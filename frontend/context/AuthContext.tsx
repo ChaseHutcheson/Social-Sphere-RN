@@ -9,6 +9,7 @@ interface IAuthContext {
   user: User | null;
   signUpData: SignUpData | null;
   authToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   setUser: (data: User | null) => void;
@@ -31,6 +32,7 @@ const AuthContext = createContext<IAuthContext>({
   user: null,
   signUpData: null,
   authToken: null,
+  refreshToken: null,
   isAuthenticated: false,
   isLoading: false,
   setUser(data) {},
@@ -47,6 +49,7 @@ export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
   const [signUpData, setSignUpData] = useState<SignUpData | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
@@ -65,6 +68,7 @@ export const AuthProvider = ({ children }: any) => {
 
       setUser(user);
       setAuthToken(tokens.data.access_token);
+      setRefreshToken(tokens.data.refresh_token);
       setAuthenticated(true);
       setLoading(false);
     } catch (error) {
@@ -121,6 +125,7 @@ export const AuthProvider = ({ children }: any) => {
 
       setUser(user);
       setAuthToken(tokens.data.access_token);
+      setRefreshToken(tokens.data.refresh_token);
       setAuthenticated(true);
       setLoading(false);
     } catch (error) {
@@ -152,6 +157,7 @@ export const AuthProvider = ({ children }: any) => {
         user,
         signUpData,
         authToken,
+        refreshToken,
         isAuthenticated,
         isLoading,
         setUser,

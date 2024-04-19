@@ -9,7 +9,7 @@ import { StyleSheet } from "react-native";
 import { View } from "@/components/Themed";
 
 export default function HomeScreen() {
-  const { isAuthenticated, authToken } = useAuth();
+  const { isAuthenticated, authToken, refreshToken } = useAuth();
   const [items, setItems] = useState<Event[]>([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -18,14 +18,14 @@ export default function HomeScreen() {
 
   const fetchItems = async () => {
     setFetchLoading(true);
-    const response = await getNewestEvents(page, authToken!);
+    const response = await getNewestEvents(authToken!, refreshToken!, page);
     if (page > 1) {
-      setItems((prevItems) => [...prevItems, ...response]);
-      setHasMore(response.length > 0);
+      setItems((prevItems) => [...prevItems, ...response?.data]);
+      setHasMore(response?.data.length > 0);
       setFetchLoading(false);
     } else {
-      setItems(response);
-      setHasMore(response.length > 0);
+      setItems(response?.data);
+      setHasMore(response?.data.length > 0);
       setFetchLoading(false);
     }
   };
@@ -47,7 +47,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <View style={{ flex: 1 }}>
         <Text style={{ textAlign: "center", fontSize: 30, fontWeight: "700" }}>
           Newest Events
@@ -86,3 +86,45 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  profileContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  profilePic: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  username: {
+    fontSize: 16,
+    color: "gray",
+    marginBottom: 8,
+  },
+  email: {
+    fontSize: 14,
+    color: "blue",
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "black",
+    marginBottom: 4,
+  },
+  value: {
+    fontSize: 14,
+    color: "gray",
+    marginBottom: 16,
+  },
+});

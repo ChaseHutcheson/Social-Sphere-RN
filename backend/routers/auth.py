@@ -40,7 +40,9 @@ reset_codes = {}
 @auth_router.get("/is-token-expired")
 def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
     try:
+        print("Beginning decode...")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print("Payload:", payload)
         exp = payload.get("exp")
 
         if exp is None:
@@ -55,6 +57,7 @@ def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
     except jwt.ExpiredSignatureError:
         return {"result": True}
     except jwt.JWTError as e:
+        print("Invalid Token", token)
         raise HTTPException(status_code=401, detail="Invalid token") from e
 
 

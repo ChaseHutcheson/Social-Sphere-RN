@@ -85,19 +85,6 @@ export const signUp = async (
     return Promise.reject(new Error("Email isn't valid."));
   }
 };
-
-export const checkToken = async (token: string) => {
-  try {
-    const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("Response Successful!");
-    return response;
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 export const forgotPassword = async (email: string) => {
   axios.post(`${API_URL}/forgot-password`, {
     email: email,

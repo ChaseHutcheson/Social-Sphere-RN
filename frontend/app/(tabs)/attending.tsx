@@ -8,7 +8,7 @@ import { getAttendingEvents } from "@/api/events";
 import { Event } from "@/constants/Types";
 
 export default function AttendingScreen() {
-  const { isAuthenticated, authToken } = useAuth();
+  const { isAuthenticated, authToken, refreshToken } = useAuth();
   const [items, setItems] = useState<Event[]>([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -17,9 +17,9 @@ export default function AttendingScreen() {
 
   const fetchItems = async () => {
     setFetchLoading(true);
-    const response = await getAttendingEvents(authToken!);
-    setItems(response);
-    setHasMore(response.length > 0);
+    const response = await getAttendingEvents(authToken!, refreshToken!);
+    setItems(response?.data);
+    setHasMore(response?.data.length > 0);
     setFetchLoading(false);
   };
 
@@ -28,7 +28,7 @@ export default function AttendingScreen() {
   }, [page]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.container}>
       <View style={{ flex: 1 }}>
         <Text style={{ textAlign: "center", fontSize: 30, fontWeight: "700" }}>
           Attending Events
@@ -67,8 +67,7 @@ export default function AttendingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "white",
   },
   title: {
     fontSize: 20,

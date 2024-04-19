@@ -8,7 +8,8 @@ import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 
 export default function ProfileScreen() {
-  const { user, authToken, setAuthToken, setAuthenticated, setUser } = useAuth();
+  const { user, authToken, setAuthToken, setAuthenticated, setUser } =
+    useAuth();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,7 +53,7 @@ export default function ProfileScreen() {
           )}
           <TouchableOpacity
             onPress={() => {
-              logOut(authToken!)
+              logOut(authToken!);
               SecureStore.deleteItemAsync("access_token");
               SecureStore.deleteItemAsync("refresh_token");
 
@@ -73,6 +74,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   profileContainer: {
     width: "100%",

@@ -10,6 +10,8 @@ import {
   View,
   FlatList,
   TouchableOpacity,
+  Platform,
+  StatusBar,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,7 +23,7 @@ type SearchResult = {
 export default function SearchScreen() {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<Event[]>([]);
-  const { authToken } = useAuth();
+  const { authToken, refreshToken } = useAuth();
 
   const data: SearchResult[] = [
     { id: 1, name: "Item 1" },
@@ -31,27 +33,37 @@ export default function SearchScreen() {
   ];
 
   const handleSearch = async (query: string) => {
-    const filteredResults = await getFilteredEvents(query, authToken!);
+    const filteredResults = await getFilteredEvents(
+      authToken!,
+      refreshToken!,
+      query
+    );
     setResults(filteredResults);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Search..."
-        value={query}
-        onChangeText={(text) => {
-          setQuery(text);
-          handleSearch(text);
-        }}
-      />
-      <FlatList
-        data={results}
-        contentContainerStyle={{alignItems: "center"}}
-        keyExtractor={(item: Event) => item.post_id.toString()}
-        renderItem={({ item }) => <EventListItem item={item} />}
-      />
+    <SafeAreaView
+      style={{
+        ...styles.container,
+      }}
+    >
+      <View style={{ ...styles.container, paddingHorizontal: 10 }}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search..."
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text);
+            handleSearch(text);
+          }}
+        />
+        <FlatList
+          data={results}
+          contentContainerStyle={{ alignItems: "center" }}
+          keyExtractor={(item: Event) => item.post_id.toString()}
+          renderItem={({ item }) => <EventListItem item={item} />}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -59,7 +71,6 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: "white",
   },
   searchBar: {

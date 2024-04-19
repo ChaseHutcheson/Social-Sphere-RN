@@ -430,7 +430,7 @@ def unattend_event(
         raise credentials_exception
 
 
-@event_router.delete("/delete-event")
+@event_router.delete("/delete-event/{post_id}")
 def delete_event(
     post_id: str,
     access_token: str = Depends(OAUTH_SCHEME),

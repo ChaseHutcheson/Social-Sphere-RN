@@ -15,9 +15,7 @@ import { useSignUpContext } from "@/context/SignUpContext";
 import { Link, Redirect, router } from "expo-router";
 import { useFonts } from "expo-font";
 import Button from "@/components/CustomButton";
-import {
-  KeyboardAwareScrollView,
-} from "react-native-keyboard-aware-scroll-view";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SignUpData } from "@/constants/Types";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,7 +24,7 @@ const SignUpScreenOne = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { isAuthenticated } = useAuth();
-  const { setSignUpData } = useSignUpContext()
+  const { setSignUpData } = useSignUpContext();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;

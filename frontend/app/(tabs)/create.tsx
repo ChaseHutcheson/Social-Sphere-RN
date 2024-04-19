@@ -6,6 +6,8 @@ import {
   Alert,
   StyleSheet,
   TouchableOpacity,
+  Platform,
+  StatusBar,
 } from "react-native";
 import DateTimePicker, {
   Event as DateTimeEvent,
@@ -17,8 +19,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "react-native-toast-notifications";
 
 export default function CreateScreen() {
-  const toast = useToast()
-  const { authToken } = useAuth();
+  const toast = useToast();
+  const { authToken, refreshToken } = useAuth();
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [address, setAddress] = useState<string>("");
@@ -61,7 +63,7 @@ export default function CreateScreen() {
     } else {
       console.log(authToken!);
     }
-    makeEvent(eventData, authToken!);
+    makeEvent(authToken!, refreshToken!, eventData);
     toast.show("Task finished successfully", {
       type: "normal",
       placement: "top",
@@ -71,8 +73,8 @@ export default function CreateScreen() {
   };
 
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.formContainer}>
         <Text style={styles.label}>Title:</Text>
         <TextInput
           style={styles.input}
@@ -141,6 +143,11 @@ export default function CreateScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  formContainer: {
+    flex: 1,
     padding: 16,
   },
   label: {
