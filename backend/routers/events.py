@@ -264,10 +264,10 @@ def get_attending_events(
 
 @event_router.get("/area")
 def get_events_in_area(
-    address: str = Depends(OAUTH_SCHEME),
+    address: str = str,
     radius: int = 50,
     db: Session = Depends(get_db),
-    access_token: str = str,
+    access_token: str = Depends(OAUTH_SCHEME)
 ):
     """
     Endpoint to get events in a specific area from the database.

@@ -1,7 +1,7 @@
 from fastapi import HTTPException, Depends, APIRouter, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import User
+from app.models import User, Post
 from fastapi.security import OAuth2PasswordRequestForm
 from app.schema import UserCreate, UserLogin
 from fastapi import Depends, HTTPException
@@ -115,6 +115,46 @@ def logout_user(
             raise HTTPException(status_code=401, detail="Invalid token")
     except jwt.JWTError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+@user_router.delete("/delete-account")
+def delete_user(
+    access_token: str = Depends(OAUTH_SCHEME),
+    db: Session = Depends(get_db)
+):
+    try:
+        # Verify the access token
+        token_valid = verify_token(access_token)
+        if not token_valid:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        # Decode the access token
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload["sub"]
+
+        # Query the user
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Delete all posts created by the user
+        posts_to_delete = db.query(Post).filter(Post.user_id == user_id).all()
+        for post in posts_to_delete:
+            db.delete(post)
+
+        # Revoke the user's refresh token
+        revoke_refresh_token_from_user(db, user_id)
+
+        # Delete the user account
+        db.delete(user)
+
+        # Commit the changes
+        db.commit()
+
+        # Return a success message
+        return {"message": "User account and all events deleted successfully"}
+
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid access token")
 
 
 @user_router.get("/me")

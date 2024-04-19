@@ -86,9 +86,14 @@ export const signUp = async (
   }
 };
 export const forgotPassword = async (email: string) => {
-  axios.post(`${API_URL}/forgot-password`, {
-    email: email,
-  });
+  axios.post(`${API_URL}/auth/forgot-password?email=${email}`, {});
+};
+
+export const resetPassword = async (email: string, code: string, newPassword: string) => {
+  axios.post(
+    `${API_URL}/auth/reset-password?email=${email}&code=${code}&new_password=${newPassword}`,
+    {}
+  );
 };
 
 export const updateProfile = async (id: number, update: UpdateUserSchema) => {

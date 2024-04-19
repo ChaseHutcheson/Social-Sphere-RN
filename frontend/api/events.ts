@@ -102,6 +102,37 @@ export const getNewestEvents = async (
   }
 };
 
+export const getNearestEvents = async (
+  access_token: string,
+  refresh_token: string,
+  address: string
+) => {
+  try {
+    const isTokenValid = await checkToken(access_token);
+    if (!isTokenValid.data.result) {
+      const response = await axios.get(`${API_URL}/events/area?address=${address}`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+      return response;
+    } else {
+      await refreshAccessToken(access_token, refresh_token);
+      const response = await axios.get(
+        `${API_URL}/events/area?address=${address}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+      return response;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export const getFilteredEvents = async (
   access_token: string,
   refresh_token: string,

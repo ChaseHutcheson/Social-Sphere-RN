@@ -30,3 +30,20 @@ export const logOut = async (
 
   return response;
 };
+
+export const deleteAccount = async (
+  access_token: string
+): Promise<AxiosResponse<any>> => {
+  const response = await axios.post(
+    `${API_URL}/users/logout`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${access_token}` },
+    }
+  );
+
+  SecureStore.deleteItemAsync("access_token");
+  SecureStore.deleteItemAsync("refresh_token");
+
+  return response;
+};

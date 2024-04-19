@@ -11,14 +11,10 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Link, Redirect, router } from "expo-router";
-import { useFonts } from "expo-font";
-import Button from "@/components/CustomButton";
-import {
-  KeyboardAwareScrollView,
-  KeyboardAwareSectionList,
-} from "react-native-keyboard-aware-scroll-view";
+import { Link, Redirect } from "expo-router";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Button from "@/components/CustomButton";
 
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
@@ -33,7 +29,7 @@ const SignInScreen = () => {
     <SafeAreaView
       style={{
         marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        ...styles.container
+        ...styles.container,
       }}
     >
       <KeyboardAwareScrollView
@@ -52,7 +48,7 @@ const SignInScreen = () => {
               style={styles.textInput}
               placeholder="JohnDoe1970@email.com"
               placeholderTextColor="#848484"
-              onChangeText={(e) => setEmail(e)}
+              onChangeText={setEmail}
             />
           </View>
           <View style={styles.textInputContainer}>
@@ -62,10 +58,12 @@ const SignInScreen = () => {
               placeholder="•••••••••••••••"
               placeholderTextColor="#848484"
               secureTextEntry={true}
-              onChangeText={(e) => setPassword(e)}
+              onChangeText={setPassword}
             />
           </View>
         </View>
+
+        {/* Sign In button */}
         <Button
           text="Sign In!"
           backgroundColor="#0059FF"
@@ -73,7 +71,14 @@ const SignInScreen = () => {
           onPress={() => {
             contextSignIn(email, password);
           }}
-        ></Button>
+        />
+
+        {/* Forgot Password button */}
+        <Link href="/(auth)/sign-in/forgotPassword">
+          <Text style={styles.forgotPasswordButton}>Forgot Password?</Text>
+        </Link>
+
+        {/* Navigation to Sign-Up screen */}
         <Text style={styles.loginButtonLabel}>Don't have an account?</Text>
         <Link href="/(auth)/sign-up/">
           <Text style={styles.textButton}>Sign Up!</Text>
@@ -88,7 +93,7 @@ export default SignInScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: "white",
   },
   aboveTitle: {
     marginTop: 100,
@@ -137,5 +142,13 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     marginVertical: 20,
+  },
+  forgotPasswordButton: {
+    marginVertical: 10,
+    fontFamily: "OpenSans",
+    fontSize: 17,
+    fontWeight: "600",
+    textDecorationLine: "underline",
+    color: "#0059FF",
   },
 });

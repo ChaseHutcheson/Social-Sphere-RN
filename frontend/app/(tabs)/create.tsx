@@ -17,6 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { makeEvent } from "@/api/events";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "react-native-toast-notifications";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
+
 
 export default function CreateScreen() {
   const toast = useToast();
@@ -93,12 +95,23 @@ export default function CreateScreen() {
         />
 
         <Text style={styles.label}>Address:</Text>
-        <TextInput
-          style={styles.input}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Enter event address"
-        />
+        <View style={styles.input}>
+          <GooglePlacesAutocomplete
+            suppressDefaultStyles
+            placeholder="Enter event address"
+            onPress={(data, details = null) => {
+              // 'details' is provided when fetchDetails = true
+              setAddress(data.description);
+            }}
+            query={{
+              key: "AIzaSyDd0YxufG2QqTaN5JG00q_oT2lmbg-czWA",
+              language: "en",
+            }}
+            onFail={(error) => {
+              console.log(error);
+            }}
+          />
+        </View>
 
         <Text style={styles.label}>Deadline:</Text>
         <TouchableOpacity
