@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
-  KeyboardAvoidingViewComponent,
   Platform,
   StatusBar,
   StyleSheet,
@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Link, Redirect } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -19,7 +18,8 @@ import Button from "@/components/CustomButton";
 const SignInScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { contextSignIn, isAuthenticated } = useAuth();
+  const [errorMessage, setErrorMessage] = useState(""); // State to hold error message
+  const { contextSignIn, isAuthenticated } = useAuth(); // Get error from context
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -69,9 +69,20 @@ const SignInScreen = () => {
           backgroundColor="#0059FF"
           textColor="#fff"
           onPress={() => {
-            contextSignIn(email, password);
+            // Call contextSignIn and handle error
+            contextSignIn(email, password).catch((error) => {
+              if (error.response.status === 400) {
+                // Set error message
+                setErrorMessage("Invalid credentials. Please try again.");
+              }
+            });
           }}
         />
+
+        {/* Display error message if exists */}
+        {errorMessage ? (
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
+        ) : null}
 
         {/* Forgot Password button */}
         <Link href="/(auth)/sign-in/forgotPassword">
@@ -150,5 +161,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textDecorationLine: "underline",
     color: "#0059FF",
+  },
+  errorMessage: {
+    color: "red",
+    marginTop: 10,
   },
 });

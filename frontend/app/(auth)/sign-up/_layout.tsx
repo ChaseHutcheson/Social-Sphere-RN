@@ -16,19 +16,22 @@ const StackLayout = () => {
         <Stack.Screen
           name="sign-up-1"
           options={{
-            headerShown: false,
+            headerShown: true,
+            headerTitle: "Sign Up",
           }}
         />
         <Stack.Screen
           name="sign-up-2"
           options={{
-            headerShown: false,
+            headerShown: true,
+            headerTitle: "Sign Up",
           }}
         />
         <Stack.Screen
           name="sign-up-3"
           options={{
-            headerShown: false,
+            headerShown: true,
+            headerTitle: "Sign Up",
           }}
         />
       </Stack>

@@ -45,7 +45,7 @@ export default function ProfileScreen() {
   const handleAppInfo = () => {
     Alert.alert(
       "App Info",
-      "Social Sphere RN\nVersion: 1.0.0\nDeveloped by: Your Name or Company"
+      "Social Sphere RN\nVersion: 1.0.0"
     );
   };
 

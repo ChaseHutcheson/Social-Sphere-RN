@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { SignUpData, User } from "../constants/Types";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { SignUpData } from "../constants/Types";
 import axios, { AxiosError } from "axios";
-import { signIn, signUp } from "@/api/auth";
 
 interface ISignUpContext {
   signUpData: SignUpData | null;
@@ -18,8 +17,25 @@ export const useSignUpContext = () => {
   return context;
 };
 
-export const SignUpProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const SignUpProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [signUpData, setSignUpData] = useState<SignUpData | null>(null);
+
+  // Additional error handling for API requests
+  const handleApiError = (error: any) => {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      console.error("API Error:", axiosError.response?.data);
+    } else {
+      console.error("Error:", error.message);
+    }
+  };
+
+  // Additional useEffect for logging sign up data changes
+  useEffect(() => {
+    console.log("Sign Up Data Changed:", signUpData);
+  }, [signUpData]);
 
   return (
     <SignUpContext.Provider

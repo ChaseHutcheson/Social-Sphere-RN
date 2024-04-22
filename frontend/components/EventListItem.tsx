@@ -17,6 +17,15 @@ export default function EventListItem({ item }: EventListItemProps) {
   const colorScheme = useColorScheme();
   const router = useRouter(); // Initialize the router
 
+  // Format deadline date
+   const formattedDeadline = new Date(item.deadline).toLocaleString();
+
+   // Check if deadline is in the past
+   const isExpired = new Date(item.deadline) < new Date();
+
+   // Render either formatted date or "Expired"
+   const renderDeadline = isExpired ? "Expired" : formattedDeadline;
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -54,6 +63,7 @@ export default function EventListItem({ item }: EventListItemProps) {
         >
           {item.content}
         </Text>
+        <Text style={styles.deadline}>Deadline: {renderDeadline}</Text>
         <Text style={styles.postedBy}>Posted By: {item.user_name}</Text>
       </View>
     </TouchableOpacity>
@@ -73,6 +83,10 @@ const styles = StyleSheet.create({
   },
   content: {
     marginTop: 5,
+  },
+  deadline: {
+    color: "red",
+    marginTop: 10,
   },
   postedBy: {
     color: "grey",

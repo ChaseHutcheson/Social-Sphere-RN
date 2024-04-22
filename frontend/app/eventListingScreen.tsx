@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   useColorScheme,
@@ -7,21 +7,28 @@ import {
 } from "react-native";
 import { Event } from "@/constants/Types";
 import { View } from "@/components/Themed";
-import { useLocalSearchParams } from "expo-router";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { attendEvent, deleteEvent } from "@/api/events";
+import MapView, { Marker } from "react-native-maps";
+import { useLocalSearchParams } from "expo-router";
+import axios from "axios";
 
 export default function EventListScreen() {
   const colorScheme = useColorScheme();
-  const { item } = useLocalSearchParams();
   const navigation = useNavigation();
+  const { item } = useLocalSearchParams();
   const { user, authToken, refreshToken } = useAuth();
+  const [region, setRegion] = useState({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
+  });
 
   let parsedItem: Event;
 
-  // Check the type of the `item` parameter
   if (typeof item === "string") {
     parsedItem = JSON.parse(item);
   } else if (Array.isArray(item)) {
@@ -29,6 +36,58 @@ export default function EventListScreen() {
   } else {
     throw new Error("Unexpected type for item parameter");
   }
+
+  // Format deadline date
+  const formattedDeadline = new Date(parsedItem.deadline).toLocaleString();
+
+  // Check if deadline is in the past
+  const isExpired = new Date(parsedItem.deadline) < new Date();
+
+  // Render either formatted date or "Expired"
+  const renderDeadline = isExpired ? "Expired" : formattedDeadline;
+
+  useEffect(() => {
+    fetchCoordinates(parsedItem.address)
+      .then((coords) => {
+        setRegion({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        });
+      })
+      .catch((error) => console.error(error));
+  }, [parsedItem]);
+
+  const fetchCoordinates = async (
+    address: string
+  ): Promise<{ latitude: number; longitude: number }> => {
+    return new Promise((resolve, reject) => {
+      const apiKey = "AIzaSyDd0YxufG2QqTaN5JG00q_oT2lmbg-czWA";
+
+      const apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        address
+      )}&key=${apiKey}`;
+
+      axios
+        .get(apiUrl)
+        .then((response) => {
+          const data = response.data;
+          if (data.status === "OK") {
+            const location = data.results[0].geometry.location;
+            resolve({
+              latitude: location.lat,
+              longitude: location.lng,
+            });
+          } else {
+            reject(data.error_message || data.status);
+          }
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -63,7 +122,16 @@ export default function EventListScreen() {
           {parsedItem.content}
         </Text>
         <Text style={styles.postedBy}>Posted By: {parsedItem.user_name}</Text>
-        <Text style={styles.postedBy}>Post ID: {parsedItem.post_id}</Text>
+        <Text style={styles.countdown}>Countdown: {renderDeadline}</Text>
+        <Text style={styles.address}>Address: {parsedItem.address}</Text>
+        <MapView style={styles.map} region={region}>
+          <Marker
+            coordinate={{
+              latitude: region.latitude,
+              longitude: region.longitude,
+            }}
+          />
+        </MapView>
       </View>
       {user?.id === parsedItem.user_id ? (
         <TouchableOpacity
@@ -127,6 +195,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "grey",
     marginBottom: 5,
+  },
+  countdown: {
+    fontSize: 14,
+    color: "red",
+    marginBottom: 5,
+  },
+  address: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  map: {
+    height: 200,
+    marginVertical: 10,
   },
   light: {
     backgroundColor: "white",

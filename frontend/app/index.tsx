@@ -44,24 +44,36 @@ export default function App() {
             if (newAccessToken) {
               await SecureStore.setItemAsync("access_token", newAccessToken);
               console.log("New access token stored successfully.");
+              const userData = await getMe(accessToken);
+
+              if (userData.status >= 200 && userData.status <= 299) {
+                const user = userData.data;
+                setUser(user);
+                setAuthenticated(true);
+                setAuthToken(accessToken);
+              } else {
+                console.error(
+                  "Failed to fetch user data:",
+                  userData.statusText
+                );
+              }
             } else {
               console.log("Failed to refresh access token.");
             }
           } catch (error) {
             console.error("Error refreshing access token:", error);
           }
-        }
-
-        // Get user data
-        const userData = await getMe(accessToken);
-
-        if (userData.status >= 200 && userData.status <= 299) {
-          const user = userData.data;
-          setUser(user);
-          setAuthenticated(true);
-          setAuthToken(accessToken);
         } else {
-          console.error("Failed to fetch user data:", userData.statusText);
+           const userData = await getMe(accessToken);
+
+           if (userData.status >= 200 && userData.status <= 299) {
+             const user = userData.data;
+             setUser(user);
+             setAuthenticated(true);
+             setAuthToken(accessToken);
+           } else {
+             console.error("Failed to fetch user data:", userData.statusText);
+           }
         }
       } catch (error) {
         console.error("Error during authentication:", error);

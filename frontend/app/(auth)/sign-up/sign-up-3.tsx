@@ -20,23 +20,19 @@ import {
 } from "react-native-keyboard-aware-scroll-view";
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSignUpContext } from "@/context/SignUpContext";
 
 const SignUpScreenThree = () => {
   const [address, setAddress] = useState("");
-  const { signUpData, setSignUpData, contextSignUp, isAuthenticated } =
-    useAuth();
+    const { isAuthenticated, contextSignUp } = useAuth();
+    const { signUpData, setSignUpData } = useSignUpContext();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
   }
 
   return (
-    <SafeAreaView
-      style={{
-        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        ...styles.container
-      }}
-    >
+    <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={{
@@ -65,8 +61,9 @@ const SignUpScreenThree = () => {
           text="Sign Up!"
           backgroundColor="#0059FF"
           textColor="#fff"
-          onPress={() => {
-            setSignUpData({
+          onPress={async () => {
+            console.log(signUpData)
+            await setSignUpData({
               first_name: signUpData?.first_name,
               last_name: signUpData?.last_name,
               username: signUpData?.username,
@@ -75,23 +72,25 @@ const SignUpScreenThree = () => {
               address: address,
               date_of_birth: signUpData?.date_of_birth,
             });
-            contextSignUp(
+            console.log(signUpData);
+            await contextSignUp(
               signUpData?.first_name!,
               signUpData?.last_name!,
               signUpData?.username!,
               signUpData?.email!,
               signUpData?.password!,
-              signUpData?.address!,
+              address!,
               signUpData?.date_of_birth!
             );
           }}
         ></Button>
+
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
         <Link href="/(auth)/sign-in">
           <Text style={styles.textButton}>Login!</Text>
         </Link>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

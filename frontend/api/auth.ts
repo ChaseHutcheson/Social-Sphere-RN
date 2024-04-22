@@ -45,9 +45,6 @@ export const signUp = async (
   address: string | null,
   date_of_birth: string
 ): Promise<AxiosResponse<any>> => {
-  console.log(email);
-  const isEmailValid = validateEmail(email);
-
   function convertDateFormat(dateString: string) {
     // Split the input date string by "/"
     const [month, day, year] = dateString.split("/");
@@ -61,6 +58,9 @@ export const signUp = async (
     return newDateString;
   }
 
+  const isEmailValid = await validateEmail(email);
+  console.log(isEmailValid);
+  console.log(email);
   if (isEmailValid) {
     try {
       console.log(convertDateFormat(date_of_birth));

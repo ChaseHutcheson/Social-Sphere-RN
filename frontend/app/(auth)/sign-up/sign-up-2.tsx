@@ -20,24 +20,21 @@ import {
 } from "react-native-keyboard-aware-scroll-view";
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSignUpContext } from "@/context/SignUpContext";
 
 const SignUpScreenTwo = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthday, setBirthday] = useState("");
-  const { signUpData, setSignUpData, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
+    const { setSignUpData } = useSignUpContext();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
   }
 
   return (
-    <SafeAreaView
-      style={{
-        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        ...styles.container,
-      }}
-    >
+    <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={{
@@ -80,17 +77,17 @@ const SignUpScreenTwo = () => {
           text="Continue"
           backgroundColor="#0059FF"
           textColor="#fff"
-          onPress={() => {
-            router.push("/(auth)/sign-up/sign-up-3");
-            setSignUpData({
-              first_name: firstName,
-              last_name: lastName,
-              username: signUpData?.username,
-              email: signUpData?.email,
-              password: signUpData?.password,
-              address: null,
-              date_of_birth: birthday,
+          onPress={async () => {
+            await setSignUpData((prevData) => {
+              return {
+                ...prevData,
+                first_name: firstName,
+                last_name: lastName,
+                address: null,
+                date_of_birth: birthday,
+              };
             });
+            router.navigate("/(auth)/sign-up/sign-up-3");
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
@@ -98,7 +95,7 @@ const SignUpScreenTwo = () => {
           <Text style={styles.textButton}>Login!</Text>
         </Link>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

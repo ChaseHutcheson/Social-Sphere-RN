@@ -126,8 +126,13 @@ def get_newest_events(
 
             # Query the database, ordering by the post ID in descending order
             # and using offset and limit to paginate the results
+            current_time = datetime.utcnow()
             events_query = (
-                db.query(Post).order_by(desc(Post.id)).offset(offset).limit(per_page)
+                db.query(Post)
+                .filter(Post.deadline > current_time)  # Filter out expired events
+                .order_by(desc(Post.id))
+                .offset(offset)
+                .limit(per_page)
             )
 
             # Convert the query results to a list of dictionaries

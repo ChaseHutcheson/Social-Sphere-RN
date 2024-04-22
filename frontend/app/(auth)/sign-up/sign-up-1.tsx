@@ -31,12 +31,7 @@ const SignUpScreenOne = () => {
   }
 
   return (
-    <SafeAreaView
-      style={{
-        marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-        ...styles.container,
-      }}
-    >
+    <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         style={styles.container}
         contentContainerStyle={{
@@ -83,7 +78,6 @@ const SignUpScreenOne = () => {
               placeholder="•••••••••••••••"
               placeholderTextColor="#848484"
               secureTextEntry={true}
-              onChangeText={(e) => setPassword(e)}
             />
           </View>
         </View>
@@ -91,16 +85,14 @@ const SignUpScreenOne = () => {
           text="Continue"
           backgroundColor="#0059FF"
           textColor="#fff"
-          onPress={() => {
-            router.push("/(auth)/sign-up/sign-up-2");
-            setSignUpData((prevData) => {
-              return {
-                ...prevData,
-                username: username,
-                email: email,
-                password: password,
-              };
+          onPress={async () => {
+            console.log(email);
+            await setSignUpData({
+              username: username,
+              email: email,
+              password: password,
             });
+            router.navigate("/(auth)/sign-up/sign-up-2");
           }}
         ></Button>
         <Text style={styles.loginButtonLabel}>Already have an account?</Text>
@@ -108,7 +100,7 @@ const SignUpScreenOne = () => {
           <Text style={styles.textButton}>Login!</Text>
         </Link>
       </KeyboardAwareScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

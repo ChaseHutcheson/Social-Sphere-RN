@@ -105,6 +105,7 @@ export const AuthProvider = ({ children }: any) => {
   ) => {
     setLoading(true);
     try {
+      console.log(email)
       await signUp(
         first_name,
         last_name,
