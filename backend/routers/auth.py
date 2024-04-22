@@ -37,10 +37,10 @@ GOOGLE_MAPS_API_KEY = Settings.GOOGLE_MAPS_API_KEY
 reset_codes = {}
 
 
-@auth_router.get("/is-token-expired")
-def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
+@auth_router.get("/token/check")
+def check_token(access_token: str = Depends(OAUTH_SCHEME)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         exp = payload.get("exp")
 
         if exp is None:
@@ -58,17 +58,20 @@ def check_token(token: Annotated[str, Depends(OAUTH_SCHEME)]):
         raise HTTPException(status_code=401, detail="Invalid token") from e
 
 
-@auth_router.post("/refresh-access-token")
-def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+from fastapi import HTTPException
+
+
+@auth_router.post("/token/refresh")
+def refresh_access_token(
+    refresh_token: str = Depends(OAUTH_SCHEME), db: Session = Depends(get_db)
+):
     """
     Endpoint to refresh the user's access token using a valid refresh token.
     """
     try:
-        # Decode the refresh token and get user ID
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload["sub"]
 
-        # Check if the user exists
         db_user = get_user_by_id(db, user_id)
         if db_user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -83,10 +86,10 @@ def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
 
         return {"access_token": access_token, "token_type": TOKEN_TYPE}
     except jwt.JWTError as e:
-        raise HTTPException(status_code=401, detail=f"JWT Error: {e}")
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
-@auth_router.post("/forgot-password")
+@auth_router.post("/password/forgot")
 def forgot_password(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if user:
@@ -117,29 +120,32 @@ def forgot_password(email: str, db: Session = Depends(get_db)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@auth_router.post("/reset-password")
+@auth_router.post("/password/refresh")
 def reset_password(
-    email: str, code: str, new_password: str, db: Session = Depends(get_db)
+    hashed_email: str,
+    hashed_code: str,
+    new_password: str,
+    db: Session = Depends(get_db),
 ):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
+    # Check if the reset code is valid and not expired
     if (
-        email in reset_codes
-        and reset_codes[email]["code"] == code
-        and reset_codes[email]["expire_at"] > datetime.utcnow()
+        hashed_email in reset_codes
+        and reset_codes[hashed_email]["code"] == hashed_code
+        and reset_codes[hashed_email]["expire_at"] > datetime.utcnow()
     ):
-        user = db.query(User).filter(User.email == email).first()
+        user = (
+            db.query(User)
+            .filter(User.email == reset_codes[hashed_email]["email"])
+            .first()
+        )
         if user:
+            # Invalidate the reset code immediately after use
+            del reset_codes[hashed_email]
+
+            # Hash the new password before storing
             hashed_password = hash_password(new_password)
             user.password = hashed_password
             db.commit()
-            del reset_codes[email]  # Remove the used reset code
-            return {"message": "Password reset successfully"}
-    else:
-        raise HTTPException(status_code=400, detail="Invalid reset code or expired")
 
-    raise HTTPException(status_code=400, detail="Invalid reset code")
+            return {"message": "Password reset successfully"}
+    raise HTTPException(status_code=400, detail="Invalid reset code or expired")

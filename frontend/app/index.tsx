@@ -27,7 +27,7 @@ export default function App() {
 
         console.log("Access token and refresh token found.");
 
-        // Check if the access token is expirede
+        // Check if the access token is expired
         const tokenResponse = await checkToken(accessToken);
 
         const isTokenExpired = tokenResponse?.data.result;
@@ -37,10 +37,7 @@ export default function App() {
           console.log("Access token is expired. Refreshing...");
 
           try {
-            const newAccessToken = await refreshAccessToken(
-              accessToken,
-              refreshToken
-            );
+            const newAccessToken = await refreshAccessToken(refreshToken);
 
             console.log("New access token:", newAccessToken);
 

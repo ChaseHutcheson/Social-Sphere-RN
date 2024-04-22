@@ -22,7 +22,7 @@ export const makeEvent = async (
       });
       return response;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.post(`${API_URL}/events`, body, {
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -56,7 +56,7 @@ export const attendEvent = async (
 
       return response;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.post(
         `${API_URL}/events/${post_id}/attend`,
         {},
@@ -89,7 +89,7 @@ export const getNewestEvents = async (
       });
       return response;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.get(`${API_URL}/events/?page=${page}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -110,14 +110,17 @@ export const getNearestEvents = async (
   try {
     const isTokenValid = await checkToken(access_token);
     if (!isTokenValid.data.result) {
-      const response = await axios.get(`${API_URL}/events/area?address=${address}`, {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      });
+      const response = await axios.get(
+        `${API_URL}/events/area?address=${address}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
       return response;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.get(
         `${API_URL}/events/area?address=${address}`,
         {
@@ -151,7 +154,7 @@ export const getFilteredEvents = async (
       );
       return response.data;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.get(
         `${API_URL}/events/search?query=${query}`,
         {
@@ -181,7 +184,7 @@ export const getAttendingEvents = async (
       });
       return response;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.get(`${API_URL}/events/attending`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
@@ -209,7 +212,7 @@ export const deleteEvent = async (
       });
       return response.data;
     } else {
-      await refreshAccessToken(access_token, refresh_token);
+      await refreshAccessToken(refresh_token);
       const response = await axios.delete(`${API_URL}/events/${post_id}`, {
         headers: {
           Authorization: `Bearer ${access_token}`,

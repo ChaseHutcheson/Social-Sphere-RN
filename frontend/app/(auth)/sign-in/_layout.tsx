@@ -1,6 +1,6 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Stack } from 'expo-router'
+import { View, Text } from "react-native";
+import React from "react";
+import { Stack } from "expo-router";
 
 const StackLayout = () => {
   return (
@@ -13,12 +13,10 @@ const StackLayout = () => {
       />
       <Stack.Screen
         name="forgotPassword"
-        options={{
-          headerShown: false,
-        }}
+        options={{ headerTitle: "Forgot Password" }}
       />
     </Stack>
   );
-}
+};
 
-export default StackLayout
+export default StackLayout;

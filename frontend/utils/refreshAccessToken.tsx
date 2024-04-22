@@ -1,20 +1,14 @@
 import axios, { AxiosError } from "axios";
 import { API_URL } from "@/constants/Config";
 
-export const refreshAccessToken = async (
-  access_token: string,
-  refresh_token: string
-) => {
+export const refreshAccessToken = async (refresh_token: string) => {
   try {
     const response = await axios.post(
-      `${API_URL}/auth/refresh-token`,
-      new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refresh_token,
-      }),
+      `${API_URL}/auth/token/refresh`,
+      {},
       {
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${refresh_token}`,
         },
       }
     );

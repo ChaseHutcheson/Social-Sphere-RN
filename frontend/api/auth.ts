@@ -1,8 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { API_URL } from "@/constants/Config";
 import validateEmail from "@/utils/ValidateEmail";
-import { SignUpData } from "../constants/Types";
-const querystring = require("query-string");
+import { hashData } from "@/utils/hashData";
 
 export interface UpdateUserSchema {
   email?: string;
@@ -86,14 +85,30 @@ export const signUp = async (
   }
 };
 export const forgotPassword = async (email: string) => {
-  axios.post(`${API_URL}/auth/forgot-password?email=${email}`, {});
-};
-
-export const resetPassword = async (email: string, code: string, newPassword: string) => {
-  axios.post(
-    `${API_URL}/auth/reset-password?email=${email}&code=${code}&new_password=${newPassword}`,
+  const request = await axios.post(
+    `${API_URL}/auth/password/forgot?email=${email}`,
     {}
   );
+  return request;
+};
+
+export const resetPassword = async (
+  email: string,
+  code: string,
+  newPassword: string
+) => {
+  const hashedEmail = hashData(email);
+  const hashedCode = hashData(code);
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/auth/password/reset?hashed_email=${hashedEmail}&hashed_code=${hashedCode}&new_password=${newPassword}`,
+      {}
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Password reset failed");
+  }
 };
 
 export const updateProfile = async (id: number, update: UpdateUserSchema) => {

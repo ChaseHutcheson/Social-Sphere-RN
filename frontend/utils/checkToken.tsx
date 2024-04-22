@@ -6,7 +6,7 @@ import { API_URL } from "@/constants/Config";
 export const checkToken = async (
   access_token: string
 ): Promise<AxiosResponse<any>> => {
-  const response = await axios.get(`${API_URL}/auth/is-token-expired`, {
+  const response = await axios.get(`${API_URL}/auth/token/check`, {
     headers: { Authorization: `Bearer ${access_token}` },
   });
 

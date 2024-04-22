@@ -13,16 +13,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
+  const [codeText, setCodeText] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  const handleForgotPassword = () => {
-    forgotPassword(email)
+  const handleForgotPassword = async () => {
+    const request = await forgotPassword(email);
+    if (request.status >= 200 && request.status <= 299) {
+      setCodeText("Code successfully sent.");
+    }
   };
 
-const handleResetPassword = () => {
+  const handleResetPassword = () => {
     resetPassword(email, code, newPassword);
-    router.back()
-};
+    router.back();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -39,10 +43,10 @@ const handleResetPassword = () => {
           autoCapitalize="none"
           autoCorrect={false}
         />
+        <Text>{codeText}</Text>
         <TouchableOpacity style={styles.button} onPress={handleForgotPassword}>
           <Text style={styles.buttonText}>Get Code</Text>
         </TouchableOpacity>
-        {/* Code input field */}
         <TextInput
           style={styles.input}
           placeholder="Enter code"
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
-    marginBottom: 10
+    marginBottom: 10,
   },
   buttonText: {
     color: "white",
