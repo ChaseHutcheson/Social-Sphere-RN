@@ -21,75 +21,77 @@ import {
 import * as SecureStore from "expo-secure-store";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSignUpContext } from "@/context/SignUpContext";
+import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
 const SignUpScreenThree = () => {
   const [address, setAddress] = useState("");
-    const { isAuthenticated, contextSignUp } = useAuth();
-    const { signUpData, setSignUpData } = useSignUpContext();
+  const { isAuthenticated, contextSignUp } = useAuth();
+  const { signUpData, setSignUpData } = useSignUpContext();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <KeyboardAwareScrollView
-        style={styles.container}
-        contentContainerStyle={{
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text style={styles.title}>
-          Would you like to set your home address?
-        </Text>
-        <Text style={styles.underTitle}>
-          We will use your address as the default location when creating events.
-        </Text>
-        <View style={styles.formContainer}>
-          <View style={styles.textInputContainer}>
-            <Text style={styles.textInputLabel}>Address</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="123 Main Street"
-              placeholderTextColor="#848484"
-              onChangeText={(e) => setAddress(e)}
+    <View style={styles.container}>
+      <Text style={styles.title}>Would you like to set your home address?</Text>
+      <Text style={styles.underTitle}>
+        We will use your address as the default location when creating events.
+      </Text>
+      <View style={styles.formContainer}>
+        <View style={styles.textInputContainer}>
+          <Text style={styles.textInputLabel}>Address</Text>
+          <View style={styles.textInput}>
+            <GooglePlacesAutocomplete
+              suppressDefaultStyles
+              placeholder="Enter event address"
+              onPress={(data, details = null) => {
+                // 'details' is provided when fetchDetails = true
+                setAddress(data.description);
+              }}
+              query={{
+                key: "AIzaSyDd0YxufG2QqTaN5JG00q_oT2lmbg-czWA",
+                language: "en",
+              }}
+              onFail={(error) => {
+                console.log(error);
+              }}
             />
           </View>
         </View>
-        <Button
-          text="Sign Up!"
-          backgroundColor="#0059FF"
-          textColor="#fff"
-          onPress={async () => {
-            console.log(signUpData)
-            await setSignUpData({
-              first_name: signUpData?.first_name,
-              last_name: signUpData?.last_name,
-              username: signUpData?.username,
-              email: signUpData?.email,
-              password: signUpData?.password,
-              address: address,
-              date_of_birth: signUpData?.date_of_birth,
-            });
-            console.log(signUpData);
-            await contextSignUp(
-              signUpData?.first_name!,
-              signUpData?.last_name!,
-              signUpData?.username!,
-              signUpData?.email!,
-              signUpData?.password!,
-              address!,
-              signUpData?.date_of_birth!
-            );
-          }}
-        ></Button>
+      </View>
+      <Button
+        text="Sign Up!"
+        backgroundColor="#0059FF"
+        textColor="#fff"
+        onPress={async () => {
+          console.log(signUpData);
+          await setSignUpData({
+            first_name: signUpData?.first_name,
+            last_name: signUpData?.last_name,
+            username: signUpData?.username,
+            email: signUpData?.email,
+            password: signUpData?.password,
+            address: address,
+            date_of_birth: signUpData?.date_of_birth,
+          });
+          console.log(signUpData);
+          await contextSignUp(
+            signUpData?.first_name!,
+            signUpData?.last_name!,
+            signUpData?.username!,
+            signUpData?.email!,
+            signUpData?.password!,
+            address!,
+            signUpData?.date_of_birth!
+          );
+        }}
+      ></Button>
 
-        <Text style={styles.loginButtonLabel}>Already have an account?</Text>
-        <Link href="/(auth)/sign-in">
-          <Text style={styles.textButton}>Login!</Text>
-        </Link>
-      </KeyboardAwareScrollView>
+      <Text style={styles.loginButtonLabel}>Already have an account?</Text>
+      <Link href="/(auth)/sign-in">
+        <Text style={styles.textButton}>Login!</Text>
+      </Link>
     </View>
   );
 };
@@ -100,9 +102,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
-    marginTop: 75,
     fontSize: 28,
     width: "90%",
     fontFamily: "OpenSans",

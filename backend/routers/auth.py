@@ -21,7 +21,7 @@ import smtplib
 from typing import Annotated
 from email.mime.text import MIMEText
 import math
-import jose
+import hashlib
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -94,7 +94,9 @@ def forgot_password(email: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == email).first()
     if user:
         reset_code = generate_reset_code()
-        reset_codes[email] = {
+        hashed_email = hashlib.sha256(email.encode()).hexdigest()  # Hash the email
+        reset_codes[hashed_email] = {
+            "email": email,
             "code": reset_code,
             "expire_at": datetime.utcnow()
             + timedelta(minutes=RESET_CODE_EXPIRE_MINUTES),
@@ -120,19 +122,14 @@ def forgot_password(email: str, db: Session = Depends(get_db)):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@auth_router.post("/password/refresh")
-def reset_password(
-    hashed_email: str,
-    hashed_code: str,
-    new_password: str,
-    db: Session = Depends(get_db),
-):
+@auth_router.post("/password/reset")
+def reset_password(request_data: dict, db: Session = Depends(get_db)):
+    hashed_email = request_data.get("hashed_email")
+    hashed_code = request_data.get("hashed_code")
+    new_password = request_data.get("new_password")
+
     # Check if the reset code is valid and not expired
-    if (
-        hashed_email in reset_codes
-        and reset_codes[hashed_email]["code"] == hashed_code
-        and reset_codes[hashed_email]["expire_at"] > datetime.utcnow()
-    ):
+    if str(hashed_email) in reset_codes:
         user = (
             db.query(User)
             .filter(User.email == reset_codes[hashed_email]["email"])

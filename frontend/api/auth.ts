@@ -101,10 +101,11 @@ export const resetPassword = async (
   const hashedCode = hashData(code);
 
   try {
-    const response = await axios.post(
-      `${API_URL}/auth/password/reset?hashed_email=${hashedEmail}&hashed_code=${hashedCode}&new_password=${newPassword}`,
-      {}
-    );
+    const response = await axios.post(`${API_URL}/auth/password/reset`, {
+      hashed_email: hashedEmail,
+      hashed_code: hashedCode,
+      new_password: newPassword,
+    });
     return response.data;
   } catch (error) {
     throw new Error("Password reset failed");

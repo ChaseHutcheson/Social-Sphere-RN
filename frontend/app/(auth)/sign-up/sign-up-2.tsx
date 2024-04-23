@@ -26,8 +26,8 @@ const SignUpScreenTwo = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthday, setBirthday] = useState("");
-    const { isAuthenticated } = useAuth();
-    const { setSignUpData } = useSignUpContext();
+  const { isAuthenticated } = useAuth();
+  const { setSignUpData } = useSignUpContext();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
