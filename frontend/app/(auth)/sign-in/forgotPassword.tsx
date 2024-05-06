@@ -17,8 +17,8 @@ const ForgotPasswordScreen = () => {
   const [newPassword, setNewPassword] = useState("");
 
   const handleForgotPassword = async () => {
-    const request = await forgotPassword(email);
-    if (request.status >= 200 && request.status <= 299) {
+    const response = await forgotPassword(email);
+    if (response.isSuccessful) {
       setCodeText("Code successfully sent.");
     }
   };

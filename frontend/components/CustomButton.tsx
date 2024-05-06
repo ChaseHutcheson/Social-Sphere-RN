@@ -1,3 +1,4 @@
+import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Colors from "../constants/Colors";
 import { forwardRef } from "react";
@@ -17,7 +18,7 @@ const Button = forwardRef<View | null, ButtonProps>(
         alignItems: "center",
         borderRadius: 20,
         marginVertical: 5,
-        backgroundColor: backgroundColor
+        backgroundColor: backgroundColor,
       },
       text: {
         fontSize: 30,

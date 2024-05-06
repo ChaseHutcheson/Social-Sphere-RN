@@ -4,6 +4,7 @@ import axios, { AxiosError } from "axios";
 import * as SecureStore from "expo-secure-store";
 import { getMe } from "@/api/users";
 import { signIn, signUp } from "@/api/auth";
+import { ApiResponse, createErrorResponse } from "@/utils/apiResponse";
 
 interface IAuthContext {
   user: User | null;
@@ -16,7 +17,7 @@ interface IAuthContext {
   setAuthenticated: (state: boolean) => void;
   setAuthToken: (state: string | null) => void;
   setSignUpData: (data: SignUpData | null) => void;
-  contextSignIn: (email: string, password: string) => Promise<void>;
+  contextSignIn: (email: string, password: string) => Promise<ApiResponse<any>>;
   contextSignUp: (
     first_name: string,
     last_name: string,
@@ -39,7 +40,12 @@ const AuthContext = createContext<IAuthContext>({
   setAuthenticated(state) {},
   setAuthToken(state) {},
   setSignUpData(state) {},
-  contextSignIn: async () => {},
+  contextSignIn: async (
+    email: string,
+    password: string
+  ): Promise<ApiResponse<any>> => {
+    return { isSuccessful: true, data: null, error: undefined };
+  },
   contextSignUp: async () => {},
 });
 
@@ -53,42 +59,41 @@ export const AuthProvider = ({ children }: any) => {
   const [isAuthenticated, setAuthenticated] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(true);
 
-  const contextSignIn = async (email: string, password: string) => {
+  const contextSignIn = async (
+    email: string,
+    password: string
+  ): Promise<ApiResponse<any>> => {
     setLoading(true);
+
     try {
       const tokens = await signIn(email, password);
-      const userData = await getMe(tokens.data.access_token);
-      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      if (!tokens.isSuccessful) {
+        console.error("Failed to sign in:", tokens);
+        return tokens;
+      }
+
+      const userData = await getMe(tokens.data!.access_token);
+      if (!userData.isSuccessful) {
+        throw new Error(userData.error || "Failed to get user data");
+      }
+
+      await SecureStore.setItemAsync("access_token", tokens.data!.access_token);
       await SecureStore.setItemAsync(
         "refresh_token",
-        tokens.data.refresh_token
+        tokens.data!.refresh_token
       );
 
       let user: User = userData.data;
 
       setUser(user);
-      setAuthToken(tokens.data.access_token);
-      setRefreshToken(tokens.data.refresh_token);
+      setAuthToken(tokens.data!.access_token);
+      setRefreshToken(tokens.data!.refresh_token);
       setAuthenticated(true);
-      setLoading(false);
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        if (error.response) {
-          console.error(
-            "Request failed with status code:",
-            error.response.status,
-            "and detail message:",
-            error.response.data.detail
-          );
-          return error.response.data.detail;
-        } else {
-          console.error("An error occurred:", error.message);
-          return error.message;
-        }
-      } else {
-        console.error("An error occurred:", error);
-        return error;
-      }
+
+      return { isSuccessful: true, data: user };
+    } catch (err) {
+      console.error("Error signing in:", err);
+      return createErrorResponse(err);
     } finally {
       setLoading(false);
     }
@@ -105,7 +110,7 @@ export const AuthProvider = ({ children }: any) => {
   ) => {
     setLoading(true);
     try {
-      console.log(email)
+      console.log(email);
       await signUp(
         first_name,
         last_name,
@@ -116,17 +121,17 @@ export const AuthProvider = ({ children }: any) => {
         date_of_birth
       );
       const tokens = await signIn(email, password);
-      const user: User = (await getMe(tokens.data.access_token)).data;
+      const user: User = (await getMe(tokens.data!.access_token)).data;
 
-      await SecureStore.setItemAsync("access_token", tokens.data.access_token);
+      await SecureStore.setItemAsync("access_token", tokens.data!.access_token);
       await SecureStore.setItemAsync(
         "refresh_token",
-        tokens.data.refresh_token
+        tokens.data!.refresh_token
       );
 
       setUser(user);
-      setAuthToken(tokens.data.access_token);
-      setRefreshToken(tokens.data.refresh_token);
+      setAuthToken(tokens.data!.access_token);
+      setRefreshToken(tokens.data!.refresh_token);
       setAuthenticated(true);
       setLoading(false);
     } catch (error) {

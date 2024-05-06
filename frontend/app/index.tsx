@@ -46,16 +46,13 @@ export default function App() {
               console.log("New access token stored successfully.");
               const userData = await getMe(accessToken);
 
-              if (userData.status >= 200 && userData.status <= 299) {
+              if (userData.isSuccessful) {
                 const user = userData.data;
                 setUser(user);
                 setAuthenticated(true);
                 setAuthToken(accessToken);
               } else {
-                console.error(
-                  "Failed to fetch user data:",
-                  userData.statusText
-                );
+                console.error("Failed to fetch user data:", userData.error);
               }
             } else {
               console.log("Failed to refresh access token.");
@@ -64,16 +61,16 @@ export default function App() {
             console.error("Error refreshing access token:", error);
           }
         } else {
-           const userData = await getMe(accessToken);
+          const userData = await getMe(accessToken);
 
-           if (userData.status >= 200 && userData.status <= 299) {
-             const user = userData.data;
-             setUser(user);
-             setAuthenticated(true);
-             setAuthToken(accessToken);
-           } else {
-             console.error("Failed to fetch user data:", userData.statusText);
-           }
+          if (userData.isSuccessful) {
+            const user = userData.data;
+            setUser(user);
+            setAuthenticated(true);
+            setAuthToken(accessToken);
+          } else {
+            console.error("Failed to fetch user data:", userData.error);
+          }
         }
       } catch (error) {
         console.error("Error during authentication:", error);

@@ -18,11 +18,11 @@ export const refreshAccessToken = async (refresh_token: string) => {
       const { access_token } = response.data;
       return access_token;
     } else {
-      console.error(`Failed to refresh token: ${response.statusText}`);
-      return null;
+      console.log("Error refreshing token:", response.status);
+      return Promise.reject(`Failed to refresh token: ${response.statusText}`);
     }
   } catch (error: any) {
-    console.error(`Error refreshing token: ${error.message}`);
-    return null;
+    console.log("Error refreshing token:", error.message);
+    return Promise.reject(`Error refreshing token: ${error.message}`);
   }
 };

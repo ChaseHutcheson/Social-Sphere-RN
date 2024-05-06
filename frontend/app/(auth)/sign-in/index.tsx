@@ -14,12 +14,13 @@ import { Link, Redirect } from "expo-router";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "@/components/CustomButton";
+import { useToast } from "react-native-toast-notifications";
 
 const SignInScreen = () => {
+  const toast = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // State to hold error message
-  const { contextSignIn, isAuthenticated } = useAuth(); // Get error from context
+  const { contextSignIn, isAuthenticated } = useAuth();
 
   if (isAuthenticated) {
     return <Redirect href="/(tabs)/" />;
@@ -63,33 +64,36 @@ const SignInScreen = () => {
           </View>
         </View>
 
-        {/* Sign In button */}
         <Button
           text="Sign In!"
           backgroundColor="#0059FF"
           textColor="#fff"
-          onPress={() => {
-            // Call contextSignIn and handle error
-            contextSignIn(email, password).catch((error) => {
-              if (error.response.status === 400) {
-                // Set error message
-                setErrorMessage("Invalid credentials. Please try again.");
+          onPress={async () => {
+            if (email && password) {
+              const response = await contextSignIn(email, password);
+              if (!response.isSuccessful) {
+                toast.show(response.error!, {
+                  type: "error",
+                  placement: "top",
+                  duration: 4000,
+                  animationType: "slide-in",
+                });
               }
-            });
+            } else {
+              toast.show("Please fill in all fields.", {
+                type: "danger",
+                placement: "top",
+                duration: 4000,
+                animationType: "slide-in",
+              });
+            }
           }}
         />
 
-        {/* Display error message if exists */}
-        {errorMessage ? (
-          <Text style={styles.errorMessage}>{errorMessage}</Text>
-        ) : null}
-
-        {/* Forgot Password button */}
         <Link href="/(auth)/sign-in/forgotPassword">
           <Text style={styles.forgotPasswordButton}>Forgot Password?</Text>
         </Link>
 
-        {/* Navigation to Sign-Up screen */}
         <Text style={styles.loginButtonLabel}>Don't have an account?</Text>
         <Link href="/(auth)/sign-up/">
           <Text style={styles.textButton}>Sign Up!</Text>

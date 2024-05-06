@@ -1,3 +1,4 @@
+import React from "react";
 import { ActivityIndicator, FlatList, StyleSheet } from "react-native";
 import { Text, View } from "@/components/Themed";
 import { SafeAreaView } from "react-native-safe-area-context";

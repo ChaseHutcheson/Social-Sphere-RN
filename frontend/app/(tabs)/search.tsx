@@ -38,7 +38,7 @@ export default function SearchScreen() {
       refreshToken!,
       query
     );
-    setResults(filteredResults);
+    setResults(filteredResults.data);
   };
 
   return (

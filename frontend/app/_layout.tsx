@@ -12,6 +12,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { AuthProvider } from "@/context/AuthContext";
 import { ToastProvider } from "react-native-toast-notifications";
 import React from "react";
+import { LogBox } from "react-native";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -33,6 +34,8 @@ export default function RootLayout() {
     OpenSans: require("../assets/fonts/Open_Sans/OpenSans-VariableFont_wdth,wght.ttf"),
     ...FontAwesome.font,
   });
+
+  LogBox.ignoreAllLogs();
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
@@ -56,7 +59,7 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ToastProvider>
+    <ToastProvider offsetTop={60} textStyle={{ fontSize: 17 }}>
       <AuthProvider>
         <Slot />
       </AuthProvider>
