@@ -39,10 +39,13 @@ export default function App() {
           try {
             const newAccessToken = await refreshAccessToken(refreshToken);
 
-            console.log("New access token:", newAccessToken);
+            console.log("Token Refresh Response:", newAccessToken);
 
-            if (newAccessToken) {
-              await SecureStore.setItemAsync("access_token", newAccessToken);
+            if (newAccessToken.isSuccessful) {
+              await SecureStore.setItemAsync(
+                "access_token",
+                newAccessToken.data.access_token
+              );
               console.log("New access token stored successfully.");
               const userData = await getMe(accessToken);
 
