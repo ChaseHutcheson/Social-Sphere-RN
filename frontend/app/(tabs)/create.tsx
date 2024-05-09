@@ -19,7 +19,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "react-native-toast-notifications";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
-
 export default function CreateScreen() {
   const toast = useToast();
   const { authToken, refreshToken } = useAuth();
@@ -63,7 +62,7 @@ export default function CreateScreen() {
     if (authToken == "" || authToken == null) {
       console.log("No token");
     } else {
-      console.log(authToken!);
+      console.log("Token found:");
     }
     makeEvent(authToken!, refreshToken!, eventData);
     toast.show("Task finished successfully", {

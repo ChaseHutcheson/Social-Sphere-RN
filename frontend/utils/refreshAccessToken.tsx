@@ -6,7 +6,6 @@ export const refreshAccessToken = async (
   refresh_token: string
 ): Promise<ApiResponse<any>> => {
   try {
-    console.log("refresh_token: ", refresh_token);
     const response = await api.post("/auth/token/refresh", {
       headers: {
         Authorization: `Bearer ${refresh_token.trim()}`,
