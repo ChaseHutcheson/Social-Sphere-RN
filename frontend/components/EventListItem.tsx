@@ -5,9 +5,9 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { Event } from "../constants/Types"; // Import the Event type
+import { Event } from "../constants/Types";
 import { View } from "./Themed";
-import { useRouter } from "expo-router"; // Import useRouter from expo-router
+import { useRouter } from "expo-router";
 
 type EventListItemProps = {
   item: Event;
@@ -15,55 +15,34 @@ type EventListItemProps = {
 
 export default function EventListItem({ item }: EventListItemProps) {
   const colorScheme = useColorScheme();
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
 
-  // Format deadline date
-   const formattedDeadline = new Date(item.deadline).toLocaleString();
-
-   // Check if deadline is in the past
-   const isExpired = new Date(item.deadline) < new Date();
-
-   // Render either formatted date or "Expired"
-   const renderDeadline = isExpired ? "Expired" : formattedDeadline;
+  const formattedDeadline = new Date(item.deadline).toLocaleString();
+  const isExpired = new Date(item.deadline) < new Date();
+  const renderDeadline = isExpired ? "Expired" : formattedDeadline;
 
   return (
     <TouchableOpacity
       onPress={() => {
-        // Serialize the item object to a JSON string
         const serializedItem = JSON.stringify(item);
-
-        // Pass the serialized item as a parameter when navigating to EventListScreen
         router.push({
-          pathname: "/eventListingScreen",
+          pathname: "/(screens)/eventListingScreen",
           params: { item: serializedItem },
         });
       }}
+      style={styles.container}
     >
       <View
         style={[
-          styles.container,
+          styles.innerContainer,
           colorScheme === "light" ? styles.light : styles.dark,
         ]}
       >
-        <Text
-          style={[
-            styles.title,
-            colorScheme === "light" ? styles.titleLight : styles.titleDark,
-          ]}
-        >
-          {item.title}
-        </Text>
-        <Text
-          style={[
-            styles.content,
-            colorScheme === "light" ? styles.contentLight : styles.contentDark,
-          ]}
-          ellipsizeMode="tail"
-          numberOfLines={4}
-        >
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.content} ellipsizeMode="tail" numberOfLines={4}>
           {item.content}
         </Text>
-        <Text style={styles.deadline}>Deadline: {renderDeadline}</Text>
+        <Text style={styles.content}>Event Date: {renderDeadline}</Text>
         <Text style={styles.postedBy}>Posted By: {item.user_name}</Text>
       </View>
     </TouchableOpacity>
@@ -72,42 +51,45 @@ export default function EventListItem({ item }: EventListItemProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 350,
-    borderRadius: 10,
+    width: 400,
     padding: 10,
-    marginVertical: 1,
+    marginVertical: 5,
+    borderRadius: 10,
+    backgroundColor: "#f0f0f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    maxWidth: "90%", // limit the width to 90% of the parent container
+  },
+  innerContainer: {
+    padding: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 10,
   },
   content: {
-    marginTop: 5,
+    fontSize: 16,
+    marginBottom: 10,
   },
   deadline: {
+    fontSize: 14,
     color: "red",
-    marginTop: 10,
+    marginBottom: 10,
   },
   postedBy: {
+    fontSize: 14,
     color: "grey",
-    marginTop: 10,
   },
   light: {
     backgroundColor: "#f0f0f0",
+    color: "black",
   },
   dark: {
     backgroundColor: "black",
-  },
-  titleLight: {
-    color: "black",
-  },
-  titleDark: {
-    color: "white",
-  },
-  contentLight: {
-    color: "black",
-  },
-  contentDark: {
     color: "white",
   },
 });

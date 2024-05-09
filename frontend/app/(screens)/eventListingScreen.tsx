@@ -14,6 +14,7 @@ import { attendEvent, deleteEvent } from "@/api/events";
 import MapView, { Marker } from "react-native-maps";
 import { useLocalSearchParams } from "expo-router";
 import axios from "axios";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export default function EventListScreen() {
   const colorScheme = useColorScheme();
@@ -95,7 +96,7 @@ export default function EventListScreen() {
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.backText}>{"< Back"}</Text>
+        <FontAwesome5 name="chevron-left" size={25} />
       </TouchableOpacity>
       <View
         style={[
@@ -122,7 +123,7 @@ export default function EventListScreen() {
           {parsedItem.content}
         </Text>
         <Text style={styles.postedBy}>Posted By: {parsedItem.user_name}</Text>
-        <Text style={styles.countdown}>Countdown: {renderDeadline}</Text>
+        <Text style={styles.content}>Event Date: {renderDeadline}</Text>
         <Text style={styles.address}>Address: {parsedItem.address}</Text>
         <MapView style={styles.map} region={region}>
           <Marker
@@ -163,6 +164,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   backButton: {
+    alignItems: "center",
+    width: 50,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: "#000",
+    borderWidth: 0.5,
+    backgroundColor: "white",
     marginBottom: 15,
   },
   backText: {

@@ -47,7 +47,7 @@ export default function AttendingScreen() {
           {fetchLoading && items.length === 0 ? (
             <ActivityIndicator />
           ) : items.length === 0 ? (
-            <Text>No events found</Text>
+            <Text style={styles.message}>Your not attending any events.</Text>
           ) : (
             <FlatList
               data={items}
@@ -78,5 +78,10 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: "80%",
+  },
+  message: {
+    fontSize: 20,
+    textAlign: "center",
+    marginTop: 20,
   },
 });
